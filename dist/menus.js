@@ -24,6 +24,8 @@ const logger_1 = require("./logger");
 const remove_1 = __importDefault(require("./remove"));
 const console_1 = require("console");
 const channelId = -1001561327673;
+const oneMonth = 30 * 24 * 60 * 60;
+const threeMonth = 60 * 24 * 60 * 60;
 const indexMenu = new menu_1.Menu("index-menu", {
     onMenuOutdated: "retry!",
 })
@@ -213,12 +215,15 @@ const wifiBtn = new menu_1.Menu("wifi-btn")
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
         const balance = parseInt(rawBalance !== null && rawBalance !== void 0 ? rawBalance : "0");
+        const rawDiscount = yield db_1.db.hget(id, "discount");
+        const discount = parseInt(rawDiscount !== null && rawDiscount !== void 0 ? rawDiscount : "0");
+        let price = discount ? 90000 - discount : 90000;
         if ((0, lodash_1.isEmpty)(file)) {
             return yield ctx.editMessageText("هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید", {
                 reply_markup: backMenu,
             });
         }
-        if (balance >= 90000 && file) {
+        if (balance >= price && file) {
             yield ctx.reply("شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
@@ -233,9 +238,14 @@ const wifiBtn = new menu_1.Menu("wifi-btn")
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./v2ray.txt", s.join("\n"));
             yield db_1.db.hmset(id, {
-                balance: balance - 90000,
+                balance: balance - price,
             });
+            // console.log(await db.hgetall(id))
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
+            // await db.hset(`${id}:v2ray:${server}`, {
+            // 	expire: oneMonth,
+            // })
+            yield db_1.db.expire(`${id}:v2ray:${server}`, oneMonth);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -272,12 +282,15 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
         const balance = parseInt(rawBalance !== null && rawBalance !== void 0 ? rawBalance : "0");
+        const rawDiscount = yield db_1.db.hget(id, "discount");
+        const discount = parseInt(rawDiscount !== null && rawDiscount !== void 0 ? rawDiscount : "0");
+        let price = discount ? 90000 - discount : 90000;
         if ((0, lodash_1.isEmpty)(file)) {
             return yield ctx.editMessageText("هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید", {
                 reply_markup: backMenu,
             });
         }
-        if (balance >= 90000 && file) {
+        if (balance >= discount && file) {
             yield ctx.reply("شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
@@ -292,9 +305,13 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./passwords.txt", s.join("\n"));
             yield db_1.db.hmset(id, {
-                balance: balance - 90000,
+                balance: balance - price,
             });
             yield db_1.db.sadd(`${id}:services:openconnect`, server);
+            yield db_1.db.hset(`${id}:openconnect:${server}`, {
+                expire: oneMonth
+            });
+            yield db_1.db.expire(`${id}:openconnect:${server}`, 20);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -317,13 +334,15 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
         const balance = parseInt(rawBalance !== null && rawBalance !== void 0 ? rawBalance : "0");
-        const discount = yield db_1.db.hget(id, "discount");
+        const rawDiscount = yield db_1.db.hget(id, "discount");
+        const discount = parseInt(rawDiscount !== null && rawDiscount !== void 0 ? rawDiscount : "0");
+        let price = discount ? 360000 - discount : 360000;
         if ((0, lodash_1.isEmpty)(file)) {
             return yield ctx.editMessageText("هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید", {
                 reply_markup: backMenu,
             });
         }
-        if (balance >= 360000 && file) {
+        if (balance >= price && file) {
             yield ctx.reply("شما سرویس 150 گیگ دوکاربره 3 ماهه 360تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
@@ -338,9 +357,13 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./passwords.txt", s.join("\n"));
             yield db_1.db.hset(id, {
-                balance: balance - 360000,
+                balance: balance - price,
             });
             yield db_1.db.sadd(`${id}:services:openconnect`, server);
+            yield db_1.db.hset(`${id}:openconnect:${server}`, {
+                expire: threeMonth,
+            });
+            yield db_1.db.expire(`${id}:openconnect:${server}`, threeMonth);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -368,12 +391,15 @@ const selectVless = new menu_1.Menu("select-vless", {
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
         const balance = parseInt(rawBalance !== null && rawBalance !== void 0 ? rawBalance : "0");
+        const rawDiscount = yield db_1.db.hget(id, "discount");
+        const discount = parseInt(rawDiscount !== null && rawDiscount !== void 0 ? rawDiscount : "0");
+        let price = discount ? 80000 - discount : 80000;
         if ((0, lodash_1.isEmpty)(file)) {
             return yield ctx.editMessageText("هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید", {
                 reply_markup: backMenu,
             });
         }
-        if (balance >= 80000 && file) {
+        if (balance >= price && file) {
             yield ctx.reply("شما سرویس 50 گیگ دوکاربره 1 ماهه 80تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
@@ -388,9 +414,13 @@ const selectVless = new menu_1.Menu("select-vless", {
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./v2ray.txt", s.join("\n"));
             yield db_1.db.hset(id, {
-                balance: balance - 80000,
+                balance: balance - price,
             });
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
+            yield db_1.db.hset(`${id}:v2ray:${server}`, {
+                expire: oneMonth,
+            });
+            yield db_1.db.expire(`${id}:v2ray:${server}`, oneMonth);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -413,13 +443,15 @@ const selectVless = new menu_1.Menu("select-vless", {
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
         const balance = parseInt(rawBalance !== null && rawBalance !== void 0 ? rawBalance : "0");
-        const discount = yield db_1.db.hget(id, "discount");
+        const rawDiscount = yield db_1.db.hget(id, "discount");
+        const discount = parseInt(rawDiscount !== null && rawDiscount !== void 0 ? rawDiscount : "0");
+        let price = discount ? 230000 - discount : 230000;
         if ((0, lodash_1.isEmpty)(file)) {
             return yield ctx.editMessageText("هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید", {
                 reply_markup: backMenu,
             });
         }
-        if (balance >= 230000 && file) {
+        if (balance >= price && file) {
             yield ctx.reply("شما سرویس 150 گیگ دوکاربره 3 ماهه 230تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
@@ -434,9 +466,13 @@ const selectVless = new menu_1.Menu("select-vless", {
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./v2ray.txt", s.join("\n"));
             yield db_1.db.hset(id, {
-                balance: balance - 230000,
+                balance: balance - price,
             });
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
+            yield db_1.db.hset(`${id}:v2ray:${server}`, {
+                expire: threeMonth,
+            });
+            yield db_1.db.expire(`${id}:v2ray:${server}`, threeMonth);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {

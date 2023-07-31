@@ -14,11 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const grammy_1 = require("grammy");
 const lodash_1 = require("lodash");
+const cron_1 = require("cron");
 const menus_1 = require("./menus");
 const logger_1 = require("./logger");
 const db_1 = require("./database/db");
 const getUser_1 = __importDefault(require("./getUser"));
 const server_1 = __importDefault(require("./server"));
+const expireServices_1 = require("./expireServices");
 const token = "6374881763:AAEAon5Y1Y5datPTlii27obw5JyANNqJtQU"; // set token
 const BOT_DEVELOPER = 1913245253; // sudo id
 const bot = new grammy_1.Bot(token);
@@ -34,6 +36,74 @@ menus_1.services.register(menus_1.selectVless);
 menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
+const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield db_1.db.smembers("users");
+        for (let user of users) {
+            const [v2ray, openconnect] = yield Promise.all([
+                db_1.db.smembers(`${user}:services:v2ray`),
+                db_1.db.smembers(`${user}:services:openconnect`),
+            ]);
+            const s = yield (0, expireServices_1.getV2rayExpire)(user, v2ray);
+            const t = yield (0, expireServices_1.getOpenExpire)(user, openconnect);
+            // console.table(s)
+            s.map(item => {
+                db_1.db.hget(`${user}:v2ray:${item.server}`, 'hasSent').then(hasSent => {
+                    // if(item.expire < 0){
+                    // 	db.del(`${user}:openconnect:${item.server}`)
+                    // 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
+                    // }
+                    // console.log(hasSent)
+                    if (!hasSent && item.expire <= 10) {
+                        bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
+                        db_1.db.hset(`${user}:v2ray:${item.server}`, {
+                            hasSent: true
+                        });
+                    }
+                });
+                t.map(item => {
+                    db_1.db.hget(`${user}:openconnect:${item.server}`, 'hasSent').then(hasSent => {
+                        // if(item.expire < 0){
+                        // 	db.del(`${user}:openconnect:${item.server}`)
+                        // 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
+                        // }
+                        console.log(hasSent);
+                        if (!hasSent && item.expire <= 10) {
+                            bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
+                            db_1.db.hset(`${user}:openconnect:${item.server}`, {
+                                hasSent: true
+                            });
+                        }
+                    });
+                });
+            });
+            // console.log(await v2rayServers)
+            // // console.log(users)
+            // const v2rays = await Promise.all(
+            // 	users.map(async (user) => await db.smembers(`${user}:services:v2ray`))
+            // )
+            // const openconnects = await Promise.all(
+            // 	users.map(async (user) => await db.smembers(`${user}:services:openconnect`))
+            // )
+            // v2rays[0].forEach(async item => {
+            // 	users.forEach(async user => {
+            // 		const expireTime = await v2ray(user, item)
+            // 		console.log(expireTime)
+            // 	})
+            // })
+        }
+        try { }
+        catch (e) {
+            console.error(e);
+        }
+        // v2rays[0].map(async item => await db.ttl(`${user}`))
+        // for(let user of users){
+        // 	const v2rayExpire = await db.ttl(`${user}:v2ray:`)
+        // }
+    }
+    finally { }
+}));
+cj.start();
 bot.use((ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     // Modify context object here by setting the config.
@@ -49,7 +119,8 @@ bot.command("start", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, first_name, username } = ctx.msg.from;
     const userId = id.toString();
     const exists = yield db_1.db.hgetall(id.toString());
-    // console.log(exists, isEmpty(exists))
+    const services = yield db_1.db.smembers(`${id}:services:v2ray`);
+    // console.log(services)
     if ((0, lodash_1.isEmpty)(exists)) {
         yield db_1.db.hmset(userId, {
             id: id,
@@ -57,12 +128,26 @@ bot.command("start", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             username: (_b = `@${username}`) !== null && _b !== void 0 ? _b : null,
             balance: 0,
         });
-        // await db.sadd(`${id}:services:v2ray`, '')
-        // await db.sadd(`${id}:services:openconnect`, '')
+        yield db_1.db.sadd('users', userId);
     }
     yield ctx.reply("سلام به ربات فروش v2ray خوش اومدین", {
         reply_markup: menus_1.indexMenu,
     });
+}));
+bot.hears(/\/discount \d{7,10} \d+/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (ctx.config.isDeveloper) {
+            const [_, id, value] = ctx.match[0].split(" ");
+            yield db_1.db.hset(id, {
+                discount: value,
+            });
+            yield ctx.reply(`مقدار ${value} تخفیف برای کاربر ${id} ثبت شد`);
+            yield ctx.api.sendMessage(id, `کاربر عزیز مقدار ${value} تومان تخفیف برای تمام سرور ها برای شما درنظر گرفته شده و میتوانید هنگام خرید از ان استفاده کنید`);
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
 }));
 bot.hears(/id/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(ctx.chat);
@@ -88,7 +173,7 @@ bot.hears(/\/amount \d+ \d{7,10}/, (ctx) => __awaiter(void 0, void 0, void 0, fu
         if (ctx.config.isDeveloper) {
             const [_, amount, id] = ctx.match[0].split(" ");
             const user = yield (0, getUser_1.default)(parseInt(id));
-            console.log(user);
+            // console.log(user)
             if ((0, lodash_1.isEmpty)(user))
                 return yield ctx.reply("این کاربر در سیستم موجود نمیباشد!");
             user.balance = parseInt(user.balance);
@@ -104,21 +189,21 @@ bot.hears(/\/amount \d+ \d{7,10}/, (ctx) => __awaiter(void 0, void 0, void 0, fu
         logger_1.log.error(e);
     }
 }));
-bot.on(':photo', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+bot.on(":photo", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     try {
         const user = ctx.from;
-        const step = yield db_1.db.hget('steps', user.id.toString());
-        if (step === 'send_receipt') {
-            yield ctx.reply('رسید شما دریافت شد و برای پشتیبانی ارسال شد\nحساب شما در اسرع وقت شارژ میشود');
-            yield db_1.db.hset("steps", user.id, '');
+        const step = yield db_1.db.hget("steps", user.id.toString());
+        if (step === "send_receipt") {
+            yield ctx.reply("رسید شما دریافت شد و برای پشتیبانی ارسال شد\nحساب شما در اسرع وقت شارژ میشود");
+            yield db_1.db.hset("steps", user.id, "");
             yield ctx.api.copyMessage(BOT_DEVELOPER, user.id, ctx.msg.message_id, {
                 caption: `**FROM:** \`${user.id}\`
 **NAME:** {${user.first_name}}
 **USERNAME:** ${(_c = "@" + user.username) !== null && _c !== void 0 ? _c : null}
 [OPEN CHAT](tg://user?id=${user.id})`,
-                parse_mode: 'Markdown',
-                reply_markup: menus_1.confirmPurchase
+                parse_mode: "Markdown",
+                reply_markup: menus_1.confirmPurchase,
             });
         }
     }
@@ -127,10 +212,10 @@ bot.on(':photo', (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     }
 }));
 bot.inlineQuery(/say (.*)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    const { match, } = ctx;
+    const { match } = ctx;
     const [_, text] = match[0].split(" ");
     const result = grammy_1.InlineQueryResultBuilder.article("id:res", "HAKEM").text(`Hello ${text}`);
     yield ctx.answerInlineQuery([result]);
 }));
-bot.catch(e => console.error(e));
+bot.catch((e) => console.error(e));
 bot.start();

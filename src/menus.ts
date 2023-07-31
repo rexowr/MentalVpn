@@ -10,6 +10,8 @@ import remove from "./remove"
 import { error } from "console"
 
 const channelId: number = -1001561327673
+const oneMonth = 30 * 24 * 60 * 60
+const threeMonth = 60 * 24 * 60 * 60
 
 const indexMenu: Menu<Context> = new Menu("index-menu", {
 	onMenuOutdated: "retry!",
@@ -215,6 +217,9 @@ const wifiBtn = new Menu("wifi-btn")
 			})
 			const rawBalance = await db.hget(id, "balance")
 			const balance = parseInt(rawBalance ?? "0")
+			const rawDiscount = await db.hget(id, "discount")
+			const discount = parseInt(rawDiscount ?? "0")
+			let price = discount ? 90000 - discount : 90000
 			if (isEmpty(file)) {
 				return await ctx.editMessageText(
 					"هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید",
@@ -223,7 +228,7 @@ const wifiBtn = new Menu("wifi-btn")
 					}
 				)
 			}
-			if (balance >= 90000 && file) {
+			if (balance >= price && file) {
 				await ctx.reply(
 					"شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید"
 				)
@@ -240,9 +245,14 @@ const wifiBtn = new Menu("wifi-btn")
 				let s = remove(content, server)
 				await writeFile("./v2ray.txt", s.join("\n"))
 				await db.hmset(id, {
-					balance: balance - 90000,
+					balance: balance - price,
 				})
+				// console.log(await db.hgetall(id))
 				await db.sadd(`${id}:services:v2ray`, server)
+				// await db.hset(`${id}:v2ray:${server}`, {
+				// 	expire: oneMonth,
+				// })
+				await db.expire(`${id}:v2ray:${server}`, oneMonth)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -275,6 +285,9 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 			})
 			const rawBalance = await db.hget(id, "balance")
 			const balance = parseInt(rawBalance ?? "0")
+			const rawDiscount = await db.hget(id, "discount")
+			const discount = parseInt(rawDiscount ?? "0")
+			let price = discount ? 90000 - discount : 90000
 			if (isEmpty(file)) {
 				return await ctx.editMessageText(
 					"هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید",
@@ -283,7 +296,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 					}
 				)
 			}
-			if (balance >= 90000 && file) {
+			if (balance >= discount && file) {
 				await ctx.reply(
 					"شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید"
 				)
@@ -300,9 +313,13 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				let s = remove(content, server)
 				await writeFile("./passwords.txt", s.join("\n"))
 				await db.hmset(id, {
-					balance: balance - 90000,
+					balance: balance - price,
 				})
 				await db.sadd(`${id}:services:openconnect`, server)
+				await db.hset(`${id}:openconnect:${server}`, {
+					expire: oneMonth
+				})
+				await db.expire(`${id}:openconnect:${server}`, 20)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -322,7 +339,9 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 			})
 			const rawBalance = await db.hget(id, "balance")
 			const balance = parseInt(rawBalance ?? "0")
-			const discount = await db.hget(id, "discount")
+			const rawDiscount = await db.hget(id, "discount")
+			const discount = parseInt(rawDiscount ?? "0")
+			let price = discount ? 360000 - discount : 360000
 			if (isEmpty(file)) {
 				return await ctx.editMessageText(
 					"هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید",
@@ -331,7 +350,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 					}
 				)
 			}
-			if (balance >= 360000 && file) {
+			if (balance >= price && file) {
 				await ctx.reply(
 					"شما سرویس 150 گیگ دوکاربره 3 ماهه 360تومن را انتخاب کرده اید"
 				)
@@ -348,9 +367,13 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				let s = remove(content, server)
 				await writeFile("./passwords.txt", s.join("\n"))
 				await db.hset(id, {
-					balance: balance - 360000,
+					balance: balance - price,
 				})
 				await db.sadd(`${id}:services:openconnect`, server)
+				await db.hset(`${id}:openconnect:${server}`, {
+					expire: threeMonth,
+				})
+				await db.expire(`${id}:openconnect:${server}`, threeMonth)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -375,6 +398,9 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 			})
 			const rawBalance = await db.hget(id, "balance")
 			const balance = parseInt(rawBalance ?? "0")
+			const rawDiscount = await db.hget(id, "discount")
+			const discount = parseInt(rawDiscount ?? "0")
+			let price = discount ? 80000 - discount : 80000
 			if (isEmpty(file)) {
 				return await ctx.editMessageText(
 					"هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید",
@@ -383,7 +409,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 					}
 				)
 			}
-			if (balance >= 80000 && file) {
+			if (balance >= price && file) {
 				await ctx.reply(
 					"شما سرویس 50 گیگ دوکاربره 1 ماهه 80تومن را انتخاب کرده اید"
 				)
@@ -400,9 +426,13 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				let s = remove(content, server)
 				await writeFile("./v2ray.txt", s.join("\n"))
 				await db.hset(id, {
-					balance: balance - 80000,
+					balance: balance - price,
 				})
 				await db.sadd(`${id}:services:v2ray`, server)
+				await db.hset(`${id}:v2ray:${server}`, {
+					expire: oneMonth,
+				})
+				await db.expire(`${id}:v2ray:${server}`, oneMonth)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -422,7 +452,9 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 			})
 			const rawBalance = await db.hget(id, "balance")
 			const balance = parseInt(rawBalance ?? "0")
-			const discount = await db.hget(id, "discount")
+			const rawDiscount = await db.hget(id, "discount")
+			const discount = parseInt(rawDiscount ?? "0")
+			let price = discount ? 230000 - discount : 230000
 			if (isEmpty(file)) {
 				return await ctx.editMessageText(
 					"هیچ سروری موجود نیست لطفا با پشتیبانی در تماس باشید",
@@ -431,7 +463,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 					}
 				)
 			}
-			if (balance >= 230000 && file) {
+			if (balance >= price && file) {
 				await ctx.reply(
 					"شما سرویس 150 گیگ دوکاربره 3 ماهه 230تومن را انتخاب کرده اید"
 				)
@@ -448,9 +480,13 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				let s = remove(content, server)
 				await writeFile("./v2ray.txt", s.join("\n"))
 				await db.hset(id, {
-					balance: balance - 230000,
+					balance: balance - price,
 				})
 				await db.sadd(`${id}:services:v2ray`, server)
+				await db.hset(`${id}:v2ray:${server}`, {
+					expire: threeMonth,
+				})
+				await db.expire(`${id}:v2ray:${server}`, threeMonth)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
