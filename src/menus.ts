@@ -319,7 +319,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				await db.hset(`${id}:openconnect:${server}`, {
 					expire: oneMonth
 				})
-				await db.expire(`${id}:openconnect:${server}`, 20)
+				await db.expire(`${id}:openconnect:${server}`, oneMonth)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -542,28 +542,6 @@ const confirmPurchase = new Menu("confirm-purchase", {
 		}
 	})
 
-// const servicesPrice: Menu<Context> = new Menu("services-price", {
-// 	onMenuOutdated: "retry!",
-// })
-// 	.text("119 T")
-// 	.text("1 کاربر")
-// 	.row()
-// 	.text("160 T")
-// 	.text("2 کاربر")
-// 	.row()
-// 	.text("230 T")
-// 	.text("3 کاربر")
-// 	.row()
-// 	.text("280 T")
-// 	.text("4 کاربر")
-// 	.row()
-// 	.text(" 330 T")
-// 	.text("5 کاربر")
-// 	.row()
-// 	.text("410 T")
-// 	.text("6 کاربر")
-// 	.row()
-// 	.back("بازگشت", (ctx) => ctx.editMessageText("شما به منوی اصلی بازگشتید"))
 export {
 	indexMenu,
 	backMenu,

@@ -311,7 +311,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
                 expire: oneMonth
             });
-            yield db_1.db.expire(`${id}:openconnect:${server}`, 20);
+            yield db_1.db.expire(`${id}:openconnect:${server}`, oneMonth);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {

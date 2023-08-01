@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addOpenConnect = exports.addV2ray = exports.addServer = void 0;
+const promises_1 = require("fs/promises");
 const db_1 = require("./database/db");
 function addServer(server) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -16,4 +18,16 @@ function addServer(server) {
         return exists ? false : true;
     });
 }
-exports.default = addServer;
+exports.addServer = addServer;
+function addV2ray(server) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, promises_1.appendFile)('./v2ray.txt', `${server}\n`);
+    });
+}
+exports.addV2ray = addV2ray;
+function addOpenConnect(server) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, promises_1.appendFile)('./passwords.txt', `${server}\n`);
+    });
+}
+exports.addOpenConnect = addOpenConnect;

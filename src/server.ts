@@ -1,3 +1,4 @@
+import { appendFile } from "fs/promises";
 import { db } from "./database/db";
 
 async function addServer(server: string): Promise<boolean> {
@@ -5,4 +6,16 @@ async function addServer(server: string): Promise<boolean> {
   return exists ? false : true
 }
 
-export default addServer
+async function addV2ray(server: string): Promise<void> {
+  await appendFile('./v2ray.txt', `${server}\n`)
+}
+
+async function addOpenConnect(server: string): Promise<void> {
+  await appendFile('./passwords.txt', `${server}\n`)
+}
+
+export {
+  addServer,
+  addV2ray,
+  addOpenConnect
+}

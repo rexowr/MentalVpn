@@ -17,8 +17,13 @@ import {
 import { log } from "./logger"
 import { db } from "./database/db"
 import getUser from "./getUser"
-import addServer from "./server"
-import {refreshServices, getV2ray, getV2rayExpire, getOpenExpire} from "./expireServices"
+import { addV2ray, addOpenConnect } from "./server"
+import {
+	refreshServices,
+	getV2ray,
+	getV2rayExpire,
+	getOpenExpire,
+} from "./expireServices"
 
 const token: string = "6374881763:AAEAon5Y1Y5datPTlii27obw5JyANNqJtQU" // set token
 type cfg = {
@@ -46,61 +51,47 @@ bot.use(indexMenu)
 bot.use(confirmPurchase)
 
 const cj = new CronJob("*/5 * * * * *", async () => {
-	try{
-	const users = await db.smembers("users")
-	for(let user of users){
-		const [v2ray, openconnect] = await Promise.all([
-			db.smembers(`${user}:services:v2ray`),
-			db.smembers(`${user}:services:openconnect`),
-		])
-		const s = await getV2rayExpire(user, v2ray)
-		const t = await getOpenExpire(user, openconnect)
-		// console.table(s)
-		s.map(item => {
-			db.hget(`${user}:v2ray:${item.server}`, 'hasSent').then(hasSent => {
-			// if(item.expire < 0){
-			// 	db.del(`${user}:openconnect:${item.server}`)
-			// 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
-			// }
-			// console.log(hasSent)
-			if(!hasSent && item.expire <= 10){
-				bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`)
-				db.hset(`${user}:v2ray:${item.server}`, {
-					hasSent: true
+	try {
+		const users = await db.smembers("users")
+		for (let user of users) {
+			const [v2ray, openconnect] = await Promise.all([
+				db.smembers(`${user}:services:v2ray`),
+				db.smembers(`${user}:services:openconnect`),
+			])
+			const s = await getV2rayExpire(user, v2ray)
+			const t = await getOpenExpire(user, openconnect)
+			// console.table(s)
+			s.map((item) => {
+				db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
+					if (!hasSent && item.expire <= 10) {
+						bot.api.sendMessage(
+							user,
+							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+						)
+						db.hset(`${user}:v2ray:${item.server}`, {
+							hasSent: true,
+						})
+					}
 				})
-			}
-		})
-		t.map(item => {
-			db.hget(`${user}:openconnect:${item.server}`, 'hasSent').then(hasSent => {
-			// if(item.expire < 0){
-			// 	db.del(`${user}:openconnect:${item.server}`)
-			// 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
-			// }
-			console.log(hasSent)
-			if(!hasSent && item.expire <= 10){
-				bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`)
-				db.hset(`${user}:openconnect:${item.server}`, {
-					hasSent: true
+				t.map((item) => {
+					db
+						.hget(`${user}:openconnect:${item.server}`, "hasSent")
+						.then((hasSent) => {
+							// console.log(hasSent)
+							if (!hasSent && item.expire <= 10) {
+								bot.api.sendMessage(
+									user,
+									`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+								)
+								db.hset(`${user}:openconnect:${item.server}`, {
+									hasSent: true,
+								})
+							}
+						})
 				})
-			}
-		})
-		})
-	}
-	// console.log(await v2rayServers)
-	// // console.log(users)
-	// const v2rays = await Promise.all(
-	// 	users.map(async (user) => await db.smembers(`${user}:services:v2ray`))
-	// )
-	// const openconnects = await Promise.all(
-	// 	users.map(async (user) => await db.smembers(`${user}:services:openconnect`))
-	// )
-	// v2rays[0].forEach(async item => {
-	// 	users.forEach(async user => {
-	// 		const expireTime = await v2ray(user, item)
-	// 		console.log(expireTime)
-	// 	})
-	// })
-	} catch(e){
+			})
+		}
+	} catch (e) {
 		console.error(e)
 	}
 	// v2rays[0].map(async item => await db.ttl(`${user}`))
@@ -133,7 +124,7 @@ bot.command("start", async (ctx) => {
 			username: `@${username}` ?? null,
 			balance: 0,
 		})
-		await db.sadd('users', userId)
+		await db.sadd("users", userId)
 	}
 	await ctx.reply("سلام به ربات فروش v2ray خوش اومدین", {
 		reply_markup: indexMenu,
@@ -148,7 +139,10 @@ bot.hears(/\/discount \d{7,10} \d+/, async (ctx) => {
 				discount: value,
 			})
 			await ctx.reply(`مقدار ${value} تخفیف برای کاربر ${id} ثبت شد`)
-			await ctx.api.sendMessage(id, `کاربر عزیز مقدار ${value} تومان تخفیف برای تمام سرور ها برای شما درنظر گرفته شده و میتوانید هنگام خرید از ان استفاده کنید`)
+			await ctx.api.sendMessage(
+				id,
+				`کاربر عزیز مقدار ${value} تومان تخفیف برای تمام سرور ها برای شما درنظر گرفته شده و میتوانید هنگام خرید از ان استفاده کنید`
+			)
 		}
 	} catch (e) {
 		console.error(e)
@@ -160,14 +154,23 @@ bot.hears(/id/, async (ctx) => {
 	// await ctx.reply(ctx.chat)
 })
 
-bot.hears(/\/server (.*)/, async (ctx) => {
+bot.hears(/\/v2ray (.*)/, async (ctx) => {
 	try {
 		if (ctx.config.isDeveloper) {
 			const [_, server] = ctx.match[0].split(" ")
-			const success = await addServer(server)
-			if (!success) return await ctx.reply("این سرور از قبل در لیست وجود دارد!")
-			await db.sadd("servers", server)
-			await ctx.reply("سرور جدید ثبت شد")
+			await addV2ray(server)
+			await ctx.reply("سرور اضافه شد")
+		}
+	} catch (e) {
+		log.error(e)
+	}
+})
+bot.hears(/\/open (.*)/, async (ctx) => {
+	try {
+		if (ctx.config.isDeveloper) {
+			const [_, server] = ctx.match[0].split(" ")
+			await addOpenConnect(server)
+			await ctx.reply("سرور اضافه شد")
 		}
 	} catch (e) {
 		log.error(e)

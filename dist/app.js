@@ -19,7 +19,7 @@ const menus_1 = require("./menus");
 const logger_1 = require("./logger");
 const db_1 = require("./database/db");
 const getUser_1 = __importDefault(require("./getUser"));
-const server_1 = __importDefault(require("./server"));
+const server_1 = require("./server");
 const expireServices_1 = require("./expireServices");
 const token = "6374881763:AAEAon5Y1Y5datPTlii27obw5JyANNqJtQU"; // set token
 const BOT_DEVELOPER = 1913245253; // sudo id
@@ -47,61 +47,38 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
             const s = yield (0, expireServices_1.getV2rayExpire)(user, v2ray);
             const t = yield (0, expireServices_1.getOpenExpire)(user, openconnect);
             // console.table(s)
-            s.map(item => {
-                db_1.db.hget(`${user}:v2ray:${item.server}`, 'hasSent').then(hasSent => {
-                    // if(item.expire < 0){
-                    // 	db.del(`${user}:openconnect:${item.server}`)
-                    // 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
-                    // }
-                    // console.log(hasSent)
+            s.map((item) => {
+                db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
                     if (!hasSent && item.expire <= 10) {
                         bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
                         db_1.db.hset(`${user}:v2ray:${item.server}`, {
-                            hasSent: true
+                            hasSent: true,
                         });
                     }
                 });
-                t.map(item => {
-                    db_1.db.hget(`${user}:openconnect:${item.server}`, 'hasSent').then(hasSent => {
-                        // if(item.expire < 0){
-                        // 	db.del(`${user}:openconnect:${item.server}`)
-                        // 	bot.api.sendMessage(user, "سرورتونو اپدیت کنین")
-                        // }
-                        console.log(hasSent);
+                t.map((item) => {
+                    db_1.db
+                        .hget(`${user}:openconnect:${item.server}`, "hasSent")
+                        .then((hasSent) => {
+                        // console.log(hasSent)
                         if (!hasSent && item.expire <= 10) {
                             bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
                             db_1.db.hset(`${user}:openconnect:${item.server}`, {
-                                hasSent: true
+                                hasSent: true,
                             });
                         }
                     });
                 });
             });
-            // console.log(await v2rayServers)
-            // // console.log(users)
-            // const v2rays = await Promise.all(
-            // 	users.map(async (user) => await db.smembers(`${user}:services:v2ray`))
-            // )
-            // const openconnects = await Promise.all(
-            // 	users.map(async (user) => await db.smembers(`${user}:services:openconnect`))
-            // )
-            // v2rays[0].forEach(async item => {
-            // 	users.forEach(async user => {
-            // 		const expireTime = await v2ray(user, item)
-            // 		console.log(expireTime)
-            // 	})
-            // })
         }
-        try { }
-        catch (e) {
-            console.error(e);
-        }
-        // v2rays[0].map(async item => await db.ttl(`${user}`))
-        // for(let user of users){
-        // 	const v2rayExpire = await db.ttl(`${user}:v2ray:`)
-        // }
     }
-    finally { }
+    catch (e) {
+        console.error(e);
+    }
+    // v2rays[0].map(async item => await db.ttl(`${user}`))
+    // for(let user of users){
+    // 	const v2rayExpire = await db.ttl(`${user}:v2ray:`)
+    // }
 }));
 cj.start();
 bot.use((ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -128,7 +105,7 @@ bot.command("start", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
             username: (_b = `@${username}`) !== null && _b !== void 0 ? _b : null,
             balance: 0,
         });
-        yield db_1.db.sadd('users', userId);
+        yield db_1.db.sadd("users", userId);
     }
     yield ctx.reply("سلام به ربات فروش v2ray خوش اومدین", {
         reply_markup: menus_1.indexMenu,
@@ -153,15 +130,24 @@ bot.hears(/id/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(ctx.chat);
     // await ctx.reply(ctx.chat)
 }));
-bot.hears(/\/server (.*)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+bot.hears(/\/v2ray (.*)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (ctx.config.isDeveloper) {
             const [_, server] = ctx.match[0].split(" ");
-            const success = yield (0, server_1.default)(server);
-            if (!success)
-                return yield ctx.reply("این سرور از قبل در لیست وجود دارد!");
-            yield db_1.db.sadd("servers", server);
-            yield ctx.reply("سرور جدید ثبت شد");
+            yield (0, server_1.addV2ray)(server);
+            yield ctx.reply("سرور اضافه شد");
+        }
+    }
+    catch (e) {
+        logger_1.log.error(e);
+    }
+}));
+bot.hears(/\/open (.*)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (ctx.config.isDeveloper) {
+            const [_, server] = ctx.match[0].split(" ");
+            yield (0, server_1.addOpenConnect)(server);
+            yield ctx.reply("سرور اضافه شد");
         }
     }
     catch (e) {
