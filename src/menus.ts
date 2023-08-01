@@ -9,6 +9,7 @@ import { log } from "./logger"
 import remove from "./remove"
 import { error } from "console"
 
+const BOT_DEVELOPER = 1913245253 // sudo id
 const channelId: number = -1001561327673
 const oneMonth = 30 * 24 * 60 * 60
 const threeMonth = 60 * 24 * 60 * 60
@@ -108,7 +109,10 @@ const extentionServices = new Menu("dynamic")
 			range
 				.text(server, async (ct) => {
 					await ct.editMessageText(`شما درخواست تمدید سرور\n${server}\nرا دارید`, {
-						reply_markup: backMenu,
+						reply_markup: confirmExtendService,
+					})
+					await db.hset(id!.toString(), {
+						extendedService: server
 					})
 				})
 				.row()
@@ -116,6 +120,31 @@ const extentionServices = new Menu("dynamic")
 		return range
 	})
 	.back("بازگشت")
+
+const confirmExtendService = new Menu('confirm-extend')
+.text("تایید", async ctx => {
+	try {
+		const id = ctx.from?.id
+		const server = await db.hget(id!.toString(), 'extendedService')
+		if(server){
+			//TODO send request to extend service and wait for response from admin
+			await db.del(id!.toString()) //delete data in redis after sending the message successfully
+			await ctx.editMessageText("درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود", {
+				reply_markup: backMenu
+			})
+			console.log(id)
+			await ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
+				parse_mode: "Markdown"
+			})
+		}
+	} catch(e){
+		console.error(e)
+	}
+})
+.row()
+.back("بازگشت", async ctx => {
+	await ctx.editMessageText("شما به منوی اصلی بازگشتید")
+})
 
 const servicesLearn = new Menu("learn-menu")
 	.text("اندروید", async (ctx) => {
@@ -163,9 +192,13 @@ const services: Menu<Context> = new Menu("services-menu", {
 	onMenuOutdated: "retry!",
 })
 	.text("V2RAY IP SABET", async (ctx) => {
-		await ctx.editMessageText("لطفا انتخاب کنید", {
-			reply_markup: selectOperators,
-		})
+		try {
+			await ctx.editMessageText("لطفا انتخاب کنید", {
+				reply_markup: selectOperators,
+			})
+		} catch(e){
+			console.error(e)
+		}
 	})
 	.text(
 		"V2RAY",
@@ -193,15 +226,23 @@ const services: Menu<Context> = new Menu("services-menu", {
 
 const selectOperators = new Menu("select-operators")
 	.text("ایرانسل و رایتل", async (ctx) => {
-		await ctx.editMessageText("لطفا انتخاب کنید", {
-			reply_markup: wifiBtn,
-		})
+		try {
+			await ctx.editMessageText("لطفا انتخاب کنید", {
+				reply_markup: wifiBtn,
+			})
+		} catch(e){
+			console.error(e)
+		}
 	})
 	.row()
 	.text("همراه اول", async (ctx) => {
-		await ctx.editMessageText("فقط با برنامه NapsternetV سازگار است", {
+		try {
+			await ctx.editMessageText("فقط با برنامه NapsternetV سازگار است", {
 			reply_markup: wifiBtn,
 		})
+	} catch(e){
+		console.error(e)
+	}
 	})
 	.row()
 	.back("بازگشت", async (ctx) => {
@@ -271,9 +312,13 @@ const wifiBtn = new Menu("wifi-btn")
 const backMenu: Menu<Context> = new Menu("back-menu", {
 	onMenuOutdated: "retry!",
 }).back("بازگشت", async (ctx) => {
-	const id = ctx.from?.id
-	await db.hset("steps", id, "")
-	await ctx.editMessageText("به منوی اصلی بازگشتید")
+	try {
+		const id = ctx.from?.id
+		await db.hset("steps", id, "")
+		await ctx.editMessageText("به منوی اصلی بازگشتید")
+	} catch(e){
+		console.error(e)
+	}
 })
 
 const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
@@ -504,7 +549,7 @@ const confirmPurchase = new Menu("confirm-purchase", {
 })
 	.text("تایید رسید", async (ctx) => {
 		try {
-			if (ctx.from.id === 1913245253) {
+			if (ctx.from.id === BOT_DEVELOPER) {
 				const caption = ctx.msg?.caption
 				const pattern = /\b\d{7,10}\b/
 				const id = caption?.match(pattern)
@@ -554,4 +599,5 @@ export {
 	selectOperators,
 	wifiBtn,
 	extentionServices,
+	confirmExtendService
 }

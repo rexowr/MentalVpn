@@ -13,6 +13,7 @@ import {
 	selectOperators,
 	wifiBtn,
 	extentionServices,
+	confirmExtendService
 } from "./menus"
 import { log } from "./logger"
 import { db } from "./database/db"
@@ -40,6 +41,7 @@ const bot: Bot<Context & config, Api<RawApi>> = new Bot(token)
 // handle menus
 indexMenu.register(backMenu)
 indexMenu.register(extentionServices)
+indexMenu.register(confirmExtendService)
 indexMenu.register(services)
 indexMenu.register(servicesLearn)
 services.register(selectOperators)
@@ -238,5 +240,4 @@ bot.inlineQuery(/say (.*)/, async (ctx) => {
 })
 
 bot.catch((e) => console.error(e))
-
 bot.start()

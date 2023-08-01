@@ -27,6 +27,7 @@ const bot = new grammy_1.Bot(token);
 // handle menus
 menus_1.indexMenu.register(menus_1.backMenu);
 menus_1.indexMenu.register(menus_1.extentionServices);
+menus_1.indexMenu.register(menus_1.confirmExtendService);
 menus_1.indexMenu.register(menus_1.services);
 menus_1.indexMenu.register(menus_1.servicesLearn);
 menus_1.services.register(menus_1.selectOperators);

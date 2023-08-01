@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extentionServices = exports.wifiBtn = exports.selectOperators = exports.backToLearns = exports.servicesLearn = exports.confirmPurchase = exports.selectOpenConnect = exports.selectVless = exports.services = exports.backMenu = exports.indexMenu = void 0;
+exports.confirmExtendService = exports.extentionServices = exports.wifiBtn = exports.selectOperators = exports.backToLearns = exports.servicesLearn = exports.confirmPurchase = exports.selectOpenConnect = exports.selectVless = exports.services = exports.backMenu = exports.indexMenu = void 0;
 const qrcode_1 = __importDefault(require("qrcode"));
 const menu_1 = require("@grammyjs/menu");
 const grammy_1 = require("grammy");
@@ -23,6 +23,7 @@ const getUser_1 = __importDefault(require("./getUser"));
 const logger_1 = require("./logger");
 const remove_1 = __importDefault(require("./remove"));
 const console_1 = require("console");
+const BOT_DEVELOPER = 1913245253; // sudo id
 const channelId = -1001561327673;
 const oneMonth = 30 * 24 * 60 * 60;
 const threeMonth = 60 * 24 * 60 * 60;
@@ -116,7 +117,10 @@ const extentionServices = new menu_1.Menu("dynamic")
         range
             .text(server, (ct) => __awaiter(void 0, void 0, void 0, function* () {
             yield ct.editMessageText(`شما درخواست تمدید سرور\n${server}\nرا دارید`, {
-                reply_markup: backMenu,
+                reply_markup: confirmExtendService,
+            });
+            yield db_1.db.hset(id.toString(), {
+                extendedService: server
             });
         }))
             .row();
@@ -125,6 +129,33 @@ const extentionServices = new menu_1.Menu("dynamic")
 }))
     .back("بازگشت");
 exports.extentionServices = extentionServices;
+const confirmExtendService = new menu_1.Menu('confirm-extend')
+    .text("تایید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    try {
+        const id = (_f = ctx.from) === null || _f === void 0 ? void 0 : _f.id;
+        const server = yield db_1.db.hget(id.toString(), 'extendedService');
+        if (server) {
+            //TODO send request to extend service and wait for response from admin
+            yield db_1.db.del(id.toString()); //delete data in redis after sending the message successfully
+            yield ctx.editMessageText("درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود", {
+                reply_markup: backMenu
+            });
+            console.log(id);
+            yield ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
+                parse_mode: "Markdown"
+            });
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
+}))
+    .row()
+    .back("بازگشت", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    yield ctx.editMessageText("شما به منوی اصلی بازگشتید");
+}));
+exports.confirmExtendService = confirmExtendService;
 const servicesLearn = new menu_1.Menu("learn-menu")
     .text("اندروید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     const msgs = [5, 6, 8, 9, 10, 11];
@@ -160,9 +191,9 @@ const servicesLearn = new menu_1.Menu("learn-menu")
     .back("بازگشت");
 exports.servicesLearn = servicesLearn;
 const backToLearns = new menu_1.Menu("back-to-learn").back("بازگشت", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
+    var _g;
     yield ctx.editMessageText("لطفا انتخاب کنید");
-    const id = (_f = ctx.from) === null || _f === void 0 ? void 0 : _f.id;
+    const id = (_g = ctx.from) === null || _g === void 0 ? void 0 : _g.id;
     yield db_1.db.hset("steps", id, "");
 }));
 exports.backToLearns = backToLearns;
@@ -170,9 +201,14 @@ const services = new menu_1.Menu("services-menu", {
     onMenuOutdated: "retry!",
 })
     .text("V2RAY IP SABET", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    yield ctx.editMessageText("لطفا انتخاب کنید", {
-        reply_markup: selectOperators,
-    });
+    try {
+        yield ctx.editMessageText("لطفا انتخاب کنید", {
+            reply_markup: selectOperators,
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
 }))
     .text("V2RAY", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     return yield ctx.editMessageText("در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است", {
@@ -190,15 +226,25 @@ const services = new menu_1.Menu("services-menu", {
 exports.services = services;
 const selectOperators = new menu_1.Menu("select-operators")
     .text("ایرانسل و رایتل", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    yield ctx.editMessageText("لطفا انتخاب کنید", {
-        reply_markup: wifiBtn,
-    });
+    try {
+        yield ctx.editMessageText("لطفا انتخاب کنید", {
+            reply_markup: wifiBtn,
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
 }))
     .row()
     .text("همراه اول", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    yield ctx.editMessageText("فقط با برنامه NapsternetV سازگار است", {
-        reply_markup: wifiBtn,
-    });
+    try {
+        yield ctx.editMessageText("فقط با برنامه NapsternetV سازگار است", {
+            reply_markup: wifiBtn,
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
 }))
     .row()
     .back("بازگشت", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
@@ -207,9 +253,9 @@ const selectOperators = new menu_1.Menu("select-operators")
 exports.selectOperators = selectOperators;
 const wifiBtn = new menu_1.Menu("wifi-btn")
     .text("50 گیگ 30 روزه 2 کاربره 90تومن", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _g;
+    var _h;
     try {
-        const id = (_g = ctx.from) === null || _g === void 0 ? void 0 : _g.id.toString();
+        const id = (_h = ctx.from) === null || _h === void 0 ? void 0 : _h.id.toString();
         const file = yield (0, promises_1.readFile)("./v2ray.txt", {
             encoding: "utf-8",
         });
@@ -266,17 +312,22 @@ exports.wifiBtn = wifiBtn;
 const backMenu = new menu_1.Menu("back-menu", {
     onMenuOutdated: "retry!",
 }).back("بازگشت", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h;
-    const id = (_h = ctx.from) === null || _h === void 0 ? void 0 : _h.id;
-    yield db_1.db.hset("steps", id, "");
-    yield ctx.editMessageText("به منوی اصلی بازگشتید");
+    var _j;
+    try {
+        const id = (_j = ctx.from) === null || _j === void 0 ? void 0 : _j.id;
+        yield db_1.db.hset("steps", id, "");
+        yield ctx.editMessageText("به منوی اصلی بازگشتید");
+    }
+    catch (e) {
+        console.error(e);
+    }
 }));
 exports.backMenu = backMenu;
 const selectOpenConnect = new menu_1.Menu("select-openconnect")
     .text("50 گیگ دوکاربره 1 ماهه 90تومن", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _j;
+    var _k;
     try {
-        const id = (_j = ctx.from) === null || _j === void 0 ? void 0 : _j.id.toString();
+        const id = (_k = ctx.from) === null || _k === void 0 ? void 0 : _k.id.toString();
         const file = yield (0, promises_1.readFile)("./passwords.txt", {
             encoding: "utf-8",
         });
@@ -326,9 +377,9 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
 }))
     .row()
     .text("150 گیگ دوکاربره 3 ماهه 360تومن", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _k;
+    var _l;
     try {
-        const id = (_k = ctx.from) === null || _k === void 0 ? void 0 : _k.id.toString();
+        const id = (_l = ctx.from) === null || _l === void 0 ? void 0 : _l.id.toString();
         const file = yield (0, promises_1.readFile)("./passwords.txt", {
             encoding: "utf-8",
         });
@@ -383,9 +434,9 @@ const selectVless = new menu_1.Menu("select-vless", {
     onMenuOutdated: "retry!",
 })
     .text(" 50 گیگ دوکاربره 1 ماهه 80تومن ", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _l;
+    var _m;
     try {
-        const id = (_l = ctx.from) === null || _l === void 0 ? void 0 : _l.id.toString();
+        const id = (_m = ctx.from) === null || _m === void 0 ? void 0 : _m.id.toString();
         const file = yield (0, promises_1.readFile)("./v2ray.txt", {
             encoding: "utf-8",
         });
@@ -435,9 +486,9 @@ const selectVless = new menu_1.Menu("select-vless", {
 }))
     .row()
     .text(" 150 گیگ دوکاربره 3 ماهه 230تومن ", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _m;
+    var _o;
     try {
-        const id = (_m = ctx.from) === null || _m === void 0 ? void 0 : _m.id.toString();
+        const id = (_o = ctx.from) === null || _o === void 0 ? void 0 : _o.id.toString();
         const file = yield (0, promises_1.readFile)("./v2ray.txt", {
             encoding: "utf-8",
         });
@@ -491,10 +542,10 @@ const confirmPurchase = new menu_1.Menu("confirm-purchase", {
     onMenuOutdated: "retry!",
 })
     .text("تایید رسید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _o;
+    var _p;
     try {
-        if (ctx.from.id === 1913245253) {
-            const caption = (_o = ctx.msg) === null || _o === void 0 ? void 0 : _o.caption;
+        if (ctx.from.id === BOT_DEVELOPER) {
+            const caption = (_p = ctx.msg) === null || _p === void 0 ? void 0 : _p.caption;
             const pattern = /\b\d{7,10}\b/;
             const id = caption === null || caption === void 0 ? void 0 : caption.match(pattern);
             if (id) {
@@ -510,10 +561,10 @@ const confirmPurchase = new menu_1.Menu("confirm-purchase", {
 }))
     .row()
     .text("عدم تایید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    var _p;
+    var _q;
     try {
         if (ctx.from.id === 1913245253) {
-            const caption = (_p = ctx.msg) === null || _p === void 0 ? void 0 : _p.caption;
+            const caption = (_q = ctx.msg) === null || _q === void 0 ? void 0 : _q.caption;
             const pattern = /\b\d{7,10}\b/;
             const id = caption === null || caption === void 0 ? void 0 : caption.match(pattern);
             if (id) {
