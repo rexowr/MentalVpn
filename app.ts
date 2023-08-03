@@ -51,7 +51,7 @@ services.register(selectVless)
 services.register(selectOpenConnect)
 bot.use(indexMenu)
 bot.use(confirmPurchase)
-
+db.flushdb()
 const cj = new CronJob("*/5 * * * * *", async () => {
 	try {
 		const users = await db.smembers("users")
