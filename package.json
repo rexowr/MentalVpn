@@ -1,21 +1,24 @@
 {
-  "name": "MentalVpn",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "@grammyjs/menu": "^1.2.1",
-    "@types/lodash": "^4.14.195",
-    "@types/qrcode": "^1.5.1",
-    "cron": "^2.4.0",
-    "grammy": "^1.17.1",
-    "ioredis": "^5.3.2",
-    "lodash": "^4.17.21",
-    "qrcode": "^1.5.3",
-    "redis": "^4.6.7",
-    "tslog": "^4.8.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20.4.2"
-  }
+	"name": "MentalVpn",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"@grammyjs/menu": "^1.2.1",
+		"@types/lodash": "^4.14.195",
+		"@types/qrcode": "^1.5.1",
+		"cron": "^2.4.0",
+		"grammy": "^1.17.1",
+		"ioredis": "^5.3.2",
+		"lodash": "^4.17.21",
+		"qrcode": "^1.5.3",
+		"redis": "^4.6.7",
+		"tslog": "^4.8.2"
+	},
+	"devDependencies": {
+		"@types/node": "^20.4.2"
+	}
 }

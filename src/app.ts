@@ -230,14 +230,5 @@ bot.on(":photo", async (ctx) => {
 	}
 })
 
-bot.inlineQuery(/say (.*)/, async (ctx) => {
-	const { match } = ctx
-	const [_, text] = match![0].split(" ")
-	const result = InlineQueryResultBuilder.article("id:res", "HAKEM").text(
-		`Hello ${text!}`
-	)
-	await ctx.answerInlineQuery([result])
-})
-
 bot.catch((e) => console.error(e))
 bot.start()
