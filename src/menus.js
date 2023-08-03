@@ -287,10 +287,10 @@ const wifiBtn = new menu_1.Menu("wifi-btn")
             });
             // console.log(await db.hgetall(id))
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
-            // await db.hset(`${id}:v2ray:${server}`, {
-            // 	expire: oneMonth,
-            // })
-            yield db_1.db.expire(`${id}:v2ray:${server}`, oneMonth);
+            yield db_1.db.hset(`${id}:v2ray:${server}`, {
+                hasSent: false,
+            });
+            yield db_1.db.expire(`${id}:v2ray:${server}`, 30);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -359,7 +359,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             });
             yield db_1.db.sadd(`${id}:services:openconnect`, server);
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
-                expire: oneMonth,
+                hasSent: false,
             });
             yield db_1.db.expire(`${id}:openconnect:${server}`, oneMonth);
         }
@@ -411,7 +411,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             });
             yield db_1.db.sadd(`${id}:services:openconnect`, server);
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
-                expire: threeMonth,
+                hasSent: false,
             });
             yield db_1.db.expire(`${id}:openconnect:${server}`, threeMonth);
         }
@@ -468,7 +468,7 @@ const selectVless = new menu_1.Menu("select-vless", {
             });
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
             yield db_1.db.hset(`${id}:v2ray:${server}`, {
-                expire: oneMonth,
+                hasSent: false,
             });
             yield db_1.db.expire(`${id}:v2ray:${server}`, oneMonth);
         }
@@ -519,7 +519,7 @@ const selectVless = new menu_1.Menu("select-vless", {
             });
             yield db_1.db.sadd(`${id}:services:v2ray`, server);
             yield db_1.db.hset(`${id}:v2ray:${server}`, {
-                expire: threeMonth,
+                hasSent: false,
             });
             yield db_1.db.expire(`${id}:v2ray:${server}`, threeMonth);
         }

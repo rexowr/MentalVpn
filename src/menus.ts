@@ -297,10 +297,10 @@ const wifiBtn = new Menu("wifi-btn")
 				})
 				// console.log(await db.hgetall(id))
 				await db.sadd(`${id}:services:v2ray`, server)
-				// await db.hset(`${id}:v2ray:${server}`, {
-				// 	expire: oneMonth,
-				// })
-				await db.expire(`${id}:v2ray:${server}`, oneMonth)
+				await db.hset(`${id}:v2ray:${server}`, {
+					hasSent: false,
+				})
+				await db.expire(`${id}:v2ray:${server}`, 30)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -369,7 +369,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				})
 				await db.sadd(`${id}:services:openconnect`, server)
 				await db.hset(`${id}:openconnect:${server}`, {
-					expire: oneMonth,
+					hasSent: false,
 				})
 				await db.expire(`${id}:openconnect:${server}`, oneMonth)
 			} else {
@@ -423,7 +423,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				})
 				await db.sadd(`${id}:services:openconnect`, server)
 				await db.hset(`${id}:openconnect:${server}`, {
-					expire: threeMonth,
+					hasSent: false,
 				})
 				await db.expire(`${id}:openconnect:${server}`, threeMonth)
 			} else {
@@ -482,7 +482,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				})
 				await db.sadd(`${id}:services:v2ray`, server)
 				await db.hset(`${id}:v2ray:${server}`, {
-					expire: oneMonth,
+					hasSent: false,
 				})
 				await db.expire(`${id}:v2ray:${server}`, oneMonth)
 			} else {
@@ -535,7 +535,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				})
 				await db.sadd(`${id}:services:v2ray`, server)
 				await db.hset(`${id}:v2ray:${server}`, {
-					expire: threeMonth,
+					hasSent: false,
 				})
 				await db.expire(`${id}:v2ray:${server}`, threeMonth)
 			} else {
