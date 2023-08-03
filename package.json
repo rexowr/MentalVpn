@@ -4,7 +4,11 @@
 	"main": "index.js",
 	"license": "MIT",
 	"scripts": {
+<<<<<<< HEAD
 		"start": "node app.js"
+=======
+		"start": "cd dist && node app"
+>>>>>>> b06c9108399dd59d0ded9222f35468cf697cb055
 	},
 	"dependencies": {
 		"@grammyjs/menu": "^1.2.1",
