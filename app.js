@@ -37,7 +37,7 @@ menus_1.services.register(menus_1.selectVless);
 menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
-db_1.db.flushdb();
+// db.flushdb()
 const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield db_1.db.smembers("users");
@@ -51,6 +51,7 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
             // console.table(s)
             s.map((item) => {
                 db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
+                    console.log(hasSent, item.expire);
                     if (!hasSent && item.expire <= 10) {
                         bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
                         db_1.db.hset(`${user}:v2ray:${item.server}`, {

@@ -51,7 +51,7 @@ services.register(selectVless)
 services.register(selectOpenConnect)
 bot.use(indexMenu)
 bot.use(confirmPurchase)
-db.flushdb()
+// db.flushdb()
 const cj = new CronJob("*/5 * * * * *", async () => {
 	try {
 		const users = await db.smembers("users")
@@ -65,6 +65,7 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 			// console.table(s)
 			s.map((item) => {
 				db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
+					console.log(hasSent, item.expire)
 					if (!hasSent && item.expire <= 10) {
 						bot.api.sendMessage(
 							user,
