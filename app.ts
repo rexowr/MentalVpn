@@ -14,17 +14,17 @@ import {
 	wifiBtn,
 	extentionServices,
 	confirmExtendService
-} from "./menus"
-import { log } from "./logger"
-import { db } from "./database/db"
-import getUser from "./getUser"
-import { addV2ray, addOpenConnect } from "./server"
+} from "./src/menus"
+import { log } from "./src/logger"
+import { db } from "./src/database/db"
+import getUser from "./src/getUser"
+import { addV2ray, addOpenConnect } from "./src/server"
 import {
 	refreshServices,
 	getV2ray,
 	getV2rayExpire,
 	getOpenExpire,
-} from "./expireServices"
+} from "./src/expireServices"
 
 const token: string = "6374881763:AAEAon5Y1Y5datPTlii27obw5JyANNqJtQU" // set token
 type cfg = {

@@ -20,7 +20,6 @@ const promises_1 = require("fs/promises");
 const lodash_1 = require("lodash");
 const db_1 = require("./database/db");
 const getUser_1 = __importDefault(require("./getUser"));
-const logger_1 = require("./logger");
 const remove_1 = __importDefault(require("./remove"));
 const console_1 = require("console");
 const BOT_DEVELOPER = 1913245253; // sudo id
@@ -37,7 +36,7 @@ const indexMenu = new menu_1.Menu("index-menu", {
     const openconnect = yield db_1.db.smembers(`${id}:services:openconnect`);
     if ((0, lodash_1.isEmpty)(v2ray) && (0, lodash_1.isEmpty)(openconnect)) {
         return yield ctx.editMessageText("شما هیچ سرویس فعالی ندارید", {
-            reply_markup: backMenu
+            reply_markup: backMenu,
         });
     }
     yield ctx.editMessageText("لطفا سرویس موردنظر را انتخاب کنید", {
@@ -74,7 +73,7 @@ const indexMenu = new menu_1.Menu("index-menu", {
     }
     catch (e) {
         yield ctx.reply("مشکل فنی پیش اومده");
-        logger_1.log.error(e);
+        console.error(e);
     }
 }))
     .row()
@@ -120,7 +119,7 @@ const extentionServices = new menu_1.Menu("dynamic")
                 reply_markup: confirmExtendService,
             });
             yield db_1.db.hset(id.toString(), {
-                extendedService: server
+                extendedService: server,
             });
         }))
             .row();
@@ -129,21 +128,21 @@ const extentionServices = new menu_1.Menu("dynamic")
 }))
     .back("بازگشت");
 exports.extentionServices = extentionServices;
-const confirmExtendService = new menu_1.Menu('confirm-extend')
+const confirmExtendService = new menu_1.Menu("confirm-extend")
     .text("تایید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _f;
     try {
         const id = (_f = ctx.from) === null || _f === void 0 ? void 0 : _f.id;
-        const server = yield db_1.db.hget(id.toString(), 'extendedService');
+        const server = yield db_1.db.hget(id.toString(), "extendedService");
         if (server) {
             //TODO send request to extend service and wait for response from admin
             yield db_1.db.del(id.toString()); //delete data in redis after sending the message successfully
             yield ctx.editMessageText("درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود", {
-                reply_markup: backMenu
+                reply_markup: backMenu,
             });
             console.log(id);
             yield ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
-                parse_mode: "Markdown"
+                parse_mode: "Markdown",
             });
         }
     }
@@ -256,7 +255,7 @@ const wifiBtn = new menu_1.Menu("wifi-btn")
     var _h;
     try {
         const id = (_h = ctx.from) === null || _h === void 0 ? void 0 : _h.id.toString();
-        const file = yield (0, promises_1.readFile)("./v2ray.txt", {
+        const file = yield (0, promises_1.readFile)("./src/v2ray.txt", {
             encoding: "utf-8",
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
@@ -301,7 +300,7 @@ const wifiBtn = new menu_1.Menu("wifi-btn")
     }
     catch (e) {
         yield ctx.reply("مشکل فنی پیش اومده");
-        logger_1.log.error(e);
+        console.error(e);
     }
 }))
     .row()
@@ -328,7 +327,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
     var _k;
     try {
         const id = (_k = ctx.from) === null || _k === void 0 ? void 0 : _k.id.toString();
-        const file = yield (0, promises_1.readFile)("./passwords.txt", {
+        const file = yield (0, promises_1.readFile)("./src/passwords.txt", {
             encoding: "utf-8",
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
@@ -360,7 +359,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             });
             yield db_1.db.sadd(`${id}:services:openconnect`, server);
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
-                expire: oneMonth
+                expire: oneMonth,
             });
             yield db_1.db.expire(`${id}:openconnect:${server}`, oneMonth);
         }
@@ -380,7 +379,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
     var _l;
     try {
         const id = (_l = ctx.from) === null || _l === void 0 ? void 0 : _l.id.toString();
-        const file = yield (0, promises_1.readFile)("./passwords.txt", {
+        const file = yield (0, promises_1.readFile)("./src/passwords.txt", {
             encoding: "utf-8",
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
@@ -437,7 +436,7 @@ const selectVless = new menu_1.Menu("select-vless", {
     var _m;
     try {
         const id = (_m = ctx.from) === null || _m === void 0 ? void 0 : _m.id.toString();
-        const file = yield (0, promises_1.readFile)("./v2ray.txt", {
+        const file = yield (0, promises_1.readFile)("./src/v2ray.txt", {
             encoding: "utf-8",
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
@@ -480,8 +479,7 @@ const selectVless = new menu_1.Menu("select-vless", {
         }
     }
     catch (error) {
-        console.log(error);
-        logger_1.log.fatal(error);
+        console.error(error);
     }
 }))
     .row()
@@ -489,7 +487,7 @@ const selectVless = new menu_1.Menu("select-vless", {
     var _o;
     try {
         const id = (_o = ctx.from) === null || _o === void 0 ? void 0 : _o.id.toString();
-        const file = yield (0, promises_1.readFile)("./v2ray.txt", {
+        const file = yield (0, promises_1.readFile)("./src/v2ray.txt", {
             encoding: "utf-8",
         });
         const rawBalance = yield db_1.db.hget(id, "balance");
@@ -532,7 +530,7 @@ const selectVless = new menu_1.Menu("select-vless", {
         }
     }
     catch (error) {
-        logger_1.log.error(error);
+        console.error(error);
     }
 }))
     .row()
@@ -556,14 +554,14 @@ const confirmPurchase = new menu_1.Menu("confirm-purchase", {
         }
     }
     catch (e) {
-        logger_1.log.error(e);
+        console.error(e);
     }
 }))
     .row()
     .text("عدم تایید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     var _q;
     try {
-        if (ctx.from.id === 1913245253) {
+        if (ctx.from.id === BOT_DEVELOPER) {
             const caption = (_q = ctx.msg) === null || _q === void 0 ? void 0 : _q.caption;
             const pattern = /\b\d{7,10}\b/;
             const id = caption === null || caption === void 0 ? void 0 : caption.match(pattern);
@@ -575,7 +573,7 @@ const confirmPurchase = new menu_1.Menu("confirm-purchase", {
         }
     }
     catch (e) {
-        logger_1.log.error(e);
+        console.error(e);
     }
 }));
 exports.confirmPurchase = confirmPurchase;

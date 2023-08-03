@@ -21,9 +21,9 @@ const indexMenu: Menu<Context> = new Menu("index-menu", {
 		const id = ctx.from?.id
 		const v2ray = await db.smembers(`${id}:services:v2ray`)
 		const openconnect = await db.smembers(`${id}:services:openconnect`)
-		if(isEmpty(v2ray) && isEmpty(openconnect)){
+		if (isEmpty(v2ray) && isEmpty(openconnect)) {
 			return await ctx.editMessageText("شما هیچ سرویس فعالی ندارید", {
-				reply_markup: backMenu
+				reply_markup: backMenu,
 			})
 		}
 		await ctx.editMessageText("لطفا سرویس موردنظر را انتخاب کنید", {
@@ -63,7 +63,7 @@ const indexMenu: Menu<Context> = new Menu("index-menu", {
 			)
 		} catch (e) {
 			await ctx.reply("مشکل فنی پیش اومده")
-			log.error(e)
+			console.error(e)
 		}
 	})
 	.row()
@@ -112,7 +112,7 @@ const extentionServices = new Menu("dynamic")
 						reply_markup: confirmExtendService,
 					})
 					await db.hset(id!.toString(), {
-						extendedService: server
+						extendedService: server,
 					})
 				})
 				.row()
@@ -121,30 +121,37 @@ const extentionServices = new Menu("dynamic")
 	})
 	.back("بازگشت")
 
-const confirmExtendService = new Menu('confirm-extend')
-.text("تایید", async ctx => {
-	try {
-		const id = ctx.from?.id
-		const server = await db.hget(id!.toString(), 'extendedService')
-		if(server){
-			//TODO send request to extend service and wait for response from admin
-			await db.del(id!.toString()) //delete data in redis after sending the message successfully
-			await ctx.editMessageText("درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود", {
-				reply_markup: backMenu
-			})
-			console.log(id)
-			await ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
-				parse_mode: "Markdown"
-			})
+const confirmExtendService = new Menu("confirm-extend")
+	.text("تایید", async (ctx) => {
+		try {
+			const id = ctx.from?.id
+			const server = await db.hget(id!.toString(), "extendedService")
+			if (server) {
+				//TODO send request to extend service and wait for response from admin
+				await db.del(id!.toString()) //delete data in redis after sending the message successfully
+				await ctx.editMessageText(
+					"درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود",
+					{
+						reply_markup: backMenu,
+					}
+				)
+				console.log(id)
+				await ctx.api.sendMessage(
+					BOT_DEVELOPER,
+					`کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`,
+					{
+						parse_mode: "Markdown",
+					}
+				)
+			}
+		} catch (e) {
+			console.error(e)
 		}
-	} catch(e){
-		console.error(e)
-	}
-})
-.row()
-.back("بازگشت", async ctx => {
-	await ctx.editMessageText("شما به منوی اصلی بازگشتید")
-})
+	})
+	.row()
+	.back("بازگشت", async (ctx) => {
+		await ctx.editMessageText("شما به منوی اصلی بازگشتید")
+	})
 
 const servicesLearn = new Menu("learn-menu")
 	.text("اندروید", async (ctx) => {
@@ -196,7 +203,7 @@ const services: Menu<Context> = new Menu("services-menu", {
 			await ctx.editMessageText("لطفا انتخاب کنید", {
 				reply_markup: selectOperators,
 			})
-		} catch(e){
+		} catch (e) {
 			console.error(e)
 		}
 	})
@@ -230,7 +237,7 @@ const selectOperators = new Menu("select-operators")
 			await ctx.editMessageText("لطفا انتخاب کنید", {
 				reply_markup: wifiBtn,
 			})
-		} catch(e){
+		} catch (e) {
 			console.error(e)
 		}
 	})
@@ -238,11 +245,11 @@ const selectOperators = new Menu("select-operators")
 	.text("همراه اول", async (ctx) => {
 		try {
 			await ctx.editMessageText("فقط با برنامه NapsternetV سازگار است", {
-			reply_markup: wifiBtn,
-		})
-	} catch(e){
-		console.error(e)
-	}
+				reply_markup: wifiBtn,
+			})
+		} catch (e) {
+			console.error(e)
+		}
 	})
 	.row()
 	.back("بازگشت", async (ctx) => {
@@ -250,10 +257,10 @@ const selectOperators = new Menu("select-operators")
 	})
 
 const wifiBtn = new Menu("wifi-btn")
-	.text("50 گیگ 30 روزه 2 کاربره 90تومن", async ctx => {
+	.text("50 گیگ 30 روزه 2 کاربره 90تومن", async (ctx) => {
 		try {
 			const id: string = ctx.from?.id.toString()
-			const file = await readFile("./v2ray.txt", {
+			const file = await readFile("./src/v2ray.txt", {
 				encoding: "utf-8",
 			})
 			const rawBalance = await db.hget(id, "balance")
@@ -301,7 +308,7 @@ const wifiBtn = new Menu("wifi-btn")
 			}
 		} catch (e) {
 			await ctx.reply("مشکل فنی پیش اومده")
-			log.error(e)
+			console.error(e)
 		}
 	})
 	.row()
@@ -316,7 +323,7 @@ const backMenu: Menu<Context> = new Menu("back-menu", {
 		const id = ctx.from?.id
 		await db.hset("steps", id, "")
 		await ctx.editMessageText("به منوی اصلی بازگشتید")
-	} catch(e){
+	} catch (e) {
 		console.error(e)
 	}
 })
@@ -325,7 +332,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 	.text("50 گیگ دوکاربره 1 ماهه 90تومن", async (ctx) => {
 		try {
 			const id: string = ctx.from?.id.toString()
-			const file = await readFile("./passwords.txt", {
+			const file = await readFile("./src/passwords.txt", {
 				encoding: "utf-8",
 			})
 			const rawBalance = await db.hget(id, "balance")
@@ -362,7 +369,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				})
 				await db.sadd(`${id}:services:openconnect`, server)
 				await db.hset(`${id}:openconnect:${server}`, {
-					expire: oneMonth
+					expire: oneMonth,
 				})
 				await db.expire(`${id}:openconnect:${server}`, oneMonth)
 			} else {
@@ -379,7 +386,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 	.text("150 گیگ دوکاربره 3 ماهه 360تومن", async (ctx) => {
 		try {
 			const id: string = ctx.from?.id.toString()
-			const file = await readFile("./passwords.txt", {
+			const file = await readFile("./src/passwords.txt", {
 				encoding: "utf-8",
 			})
 			const rawBalance = await db.hget(id, "balance")
@@ -438,7 +445,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 	.text(" 50 گیگ دوکاربره 1 ماهه 80تومن ", async (ctx) => {
 		try {
 			const id: string = ctx.from?.id.toString()
-			const file = await readFile("./v2ray.txt", {
+			const file = await readFile("./src/v2ray.txt", {
 				encoding: "utf-8",
 			})
 			const rawBalance = await db.hget(id, "balance")
@@ -484,15 +491,14 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				})
 			}
 		} catch (error) {
-			console.log(error)
-			log.fatal(error)
+			console.error(error)
 		}
 	})
 	.row()
 	.text(" 150 گیگ دوکاربره 3 ماهه 230تومن ", async (ctx) => {
 		try {
 			const id: string = ctx.from?.id.toString()
-			const file = await readFile("./v2ray.txt", {
+			const file = await readFile("./src/v2ray.txt", {
 				encoding: "utf-8",
 			})
 			const rawBalance = await db.hget(id, "balance")
@@ -538,7 +544,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				})
 			}
 		} catch (error) {
-			log.error(error)
+			console.error(error)
 		}
 	})
 	.row()
@@ -563,13 +569,13 @@ const confirmPurchase = new Menu("confirm-purchase", {
 				}
 			}
 		} catch (e) {
-			log.error(e)
+			console.error(e)
 		}
 	})
 	.row()
 	.text("عدم تایید", async (ctx) => {
 		try {
-			if (ctx.from.id === 1913245253) {
+			if (ctx.from.id === BOT_DEVELOPER) {
 				const caption = ctx.msg?.caption
 				const pattern = /\b\d{7,10}\b/
 				const id = caption?.match(pattern)
@@ -583,7 +589,7 @@ const confirmPurchase = new Menu("confirm-purchase", {
 				}
 			}
 		} catch (e) {
-			log.error(e)
+			console.error(e)
 		}
 	})
 
@@ -599,5 +605,5 @@ export {
 	selectOperators,
 	wifiBtn,
 	extentionServices,
-	confirmExtendService
+	confirmExtendService,
 }
