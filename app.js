@@ -57,18 +57,16 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
                         });
                     }
                 });
-                t.map((item) => {
-                    db_1.db
-                        .hget(`${user}:openconnect:${item.server}`, "hasSent")
-                        .then((hasSent) => {
-                        // console.log(hasSent)
-                        if (!hasSent && item.expire <= 10) {
-                            bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
-                            db_1.db.hset(`${user}:openconnect:${item.server}`, {
-                                hasSent: true,
-                            });
-                        }
-                    });
+            });
+            t.map((item) => {
+                db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
+                    console.log(hasSent, item.expire);
+                    if (!hasSent && item.expire <= 10) {
+                        bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
+                        db_1.db.hset(`${user}:openconnect:${item.server}`, {
+                            hasSent: true,
+                        });
+                    }
                 });
             });
         }

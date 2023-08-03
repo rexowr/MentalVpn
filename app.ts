@@ -13,7 +13,7 @@ import {
 	selectOperators,
 	wifiBtn,
 	extentionServices,
-	confirmExtendService
+	confirmExtendService,
 } from "./src/menus"
 import { log } from "./src/logger"
 import { db } from "./src/database/db"
@@ -75,21 +75,19 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 						})
 					}
 				})
-				t.map((item) => {
-					db
-						.hget(`${user}:openconnect:${item.server}`, "hasSent")
-						.then((hasSent) => {
-							// console.log(hasSent)
-							if (!hasSent && item.expire <= 10) {
-								bot.api.sendMessage(
-									user,
-									`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
-								)
-								db.hset(`${user}:openconnect:${item.server}`, {
-									hasSent: true,
-								})
-							}
+			})
+			t.map((item) => {
+				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
+					console.log(hasSent, item.expire)
+					if (!hasSent && item.expire <= 10) {
+						bot.api.sendMessage(
+							user,
+							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+						)
+						db.hset(`${user}:openconnect:${item.server}`, {
+							hasSent: true,
 						})
+					}
 				})
 			})
 		}
