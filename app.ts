@@ -63,10 +63,11 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 			const s = await getV2rayExpire(user, v2ray)
 			const t = await getOpenExpire(user, openconnect)
 			// console.table(s)
-			s.map((item) => {
+			s.forEach((item) => {
 				db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
-					console.log(hasSent, item.expire)
+					// console.log(hasSent, item.expire)
 					if (!hasSent && item.expire <= 10) {
+						console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
 						bot.api.sendMessage(
 							user,
 							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
@@ -77,10 +78,12 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 					}
 				})
 			})
-			t.map((item) => {
+			t.forEach((item) => {
 				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
-					console.log(hasSent, item.expire)
+					// console.log(hasSent, item.expire)
 					if (!hasSent && item.expire <= 10) {
+						console.log(`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`)
+
 						bot.api.sendMessage(
 							user,
 							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
@@ -95,15 +98,11 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 	} catch (e) {
 		console.error(e)
 	}
-	// v2rays[0].map(async item => await db.ttl(`${user}`))
-	// for(let user of users){
-	// 	const v2rayExpire = await db.ttl(`${user}:v2ray:`)
-	// }
 })
 cj.start()
 
 bot.use(async (ctx, next) => {
-	// Modify context object here by setting the config.
+	// TODO Modify context object here by setting the config.
 	ctx.config = {
 		botDeveloper: BOT_DEVELOPER,
 		isDeveloper: ctx.from?.id === BOT_DEVELOPER,
