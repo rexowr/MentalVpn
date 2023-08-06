@@ -37,7 +37,7 @@ menus_1.services.register(menus_1.selectVless);
 menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
-// db.flushdb()
+db_1.db.flushdb();
 const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield db_1.db.smembers("users");
@@ -49,10 +49,11 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
             const s = yield (0, expireServices_1.getV2rayExpire)(user, v2ray);
             const t = yield (0, expireServices_1.getOpenExpire)(user, openconnect);
             // console.table(s)
-            s.map((item) => {
+            s.forEach((item) => {
                 db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
-                    console.log(hasSent, item.expire);
+                    // console.log(hasSent, item.expire)
                     if (!hasSent && item.expire <= 10) {
+                        console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`);
                         bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
                         db_1.db.hset(`${user}:v2ray:${item.server}`, {
                             hasSent: true,
@@ -60,10 +61,11 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
                     }
                 });
             });
-            t.map((item) => {
+            t.forEach((item) => {
                 db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
-                    console.log(hasSent, item.expire);
+                    // console.log(hasSent, item.expire)
                     if (!hasSent && item.expire <= 10) {
+                        console.log(`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`);
                         bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
                         db_1.db.hset(`${user}:openconnect:${item.server}`, {
                             hasSent: true,
@@ -76,15 +78,11 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
     catch (e) {
         console.error(e);
     }
-    // v2rays[0].map(async item => await db.ttl(`${user}`))
-    // for(let user of users){
-    // 	const v2rayExpire = await db.ttl(`${user}:v2ray:`)
-    // }
 }));
 cj.start();
 bot.use((ctx, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    // Modify context object here by setting the config.
+    // TODO Modify context object here by setting the config.
     ctx.config = {
         botDeveloper: BOT_DEVELOPER,
         isDeveloper: ((_a = ctx.from) === null || _a === void 0 ? void 0 : _a.id) === BOT_DEVELOPER,
