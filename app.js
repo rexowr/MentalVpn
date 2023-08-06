@@ -38,7 +38,7 @@ menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
 db_1.db.flushdb();
-const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield db_1.db.smembers("users");
         for (let user of users) {
@@ -48,19 +48,36 @@ const cj = new cron_1.CronJob("*/5 * * * * *", () => __awaiter(void 0, void 0, v
             ]);
             const s = yield (0, expireServices_1.getV2rayExpire)(user, v2ray);
             const t = yield (0, expireServices_1.getOpenExpire)(user, openconnect);
+            // const services: service_data[] = s.filter()
             // console.table(s)
-            s.forEach((item) => {
-                db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
-                    // console.log(hasSent, item.expire)
-                    if (!hasSent && item.expire <= 10) {
-                        console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`);
-                        bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
-                        db_1.db.hset(`${user}:v2ray:${item.server}`, {
-                            hasSent: true,
-                        });
+            s.forEach((item) => __awaiter(void 0, void 0, void 0, function* () {
+                const hasSent = yield db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent");
+                console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`);
+                if (item.expire < 10) {
+                    console.log("server expire time less than 10");
+                    if (!hasSent) {
+                        yield bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`);
                     }
-                });
-            });
+                    db_1.db.hset(`${user}:v2ray:${item.server}`, {
+                        hasSent: true,
+                    });
+                    console.log("server has sent successfuly!");
+                }
+                // db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
+                // 	// console.log(hasSent, item.expire)
+                // 	// console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
+                // 	if (!hasSent && item.expire <= 10) {
+                // 		// console.log(`in v2ray in condition => hasSent: ${hasSent}, expire: ${item.expire}`)
+                // 		bot.api.sendMessage(
+                // 			user,
+                // 			`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+                // 		)
+                // 		db.hset(`${user}:v2ray:${item.server}`, {
+                // 			hasSent: true,
+                // 		})
+                // 	}
+                // })
+            }));
             t.forEach((item) => {
                 db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
                     // console.log(hasSent, item.expire)
