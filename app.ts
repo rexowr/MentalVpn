@@ -52,7 +52,11 @@ services.register(selectOpenConnect)
 bot.use(indexMenu)
 bot.use(confirmPurchase)
 db.flushdb()
-const cj = new CronJob("*/5 * * * * *", async () => {
+interface service_data {
+	server: string
+	expire: number
+}
+const cj = new CronJob("*/2 * * * * *", async () => {
 	try {
 		const users = await db.smembers("users")
 		for (let user of users) {
@@ -62,22 +66,35 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 			])
 			const s = await getV2rayExpire(user, v2ray)
 			const t = await getOpenExpire(user, openconnect)
+			// const services: service_data[] = s.filter()
 			// console.table(s)
-			s.forEach((item) => {
-				db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
-					// console.log(hasSent, item.expire)
-					console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
-					if (!hasSent && item.expire <= 10) {
-						console.log(`in v2ray in condition => hasSent: ${hasSent}, expire: ${item.expire}`)
-						bot.api.sendMessage(
-							user,
-							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
-						)
-						db.hset(`${user}:v2ray:${item.server}`, {
-							hasSent: true,
-						})
+			s.forEach(async (item) => {
+				const hasSent = await db.hget(`${user}:v2ray:${item.server}`, "hasSent")
+				console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
+				if(item.expire < 10){
+					console.log("server expire time less than 10")
+					if(!hasSent){
+						await bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`)
 					}
-				})
+					db.hset(`${user}:v2ray:${item.server}`, {
+						hasSent: true,
+					})
+					console.log("server has sent successfuly!")
+				}
+				// db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
+				// 	// console.log(hasSent, item.expire)
+				// 	// console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
+				// 	if (!hasSent && item.expire <= 10) {
+				// 		// console.log(`in v2ray in condition => hasSent: ${hasSent}, expire: ${item.expire}`)
+				// 		bot.api.sendMessage(
+				// 			user,
+				// 			`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+				// 		)
+				// 		db.hset(`${user}:v2ray:${item.server}`, {
+				// 			hasSent: true,
+				// 		})
+				// 	}
+				// })
 			})
 			t.forEach((item) => {
 				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
