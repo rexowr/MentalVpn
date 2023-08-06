@@ -66,8 +66,9 @@ const cj = new CronJob("*/5 * * * * *", async () => {
 			s.forEach((item) => {
 				db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
 					// console.log(hasSent, item.expire)
+					console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
 					if (!hasSent && item.expire <= 10) {
-						console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
+						console.log(`in v2ray in condition => hasSent: ${hasSent}, expire: ${item.expire}`)
 						bot.api.sendMessage(
 							user,
 							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
