@@ -68,8 +68,9 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 			const t = await getOpenExpire(user, openconnect)
 			s.forEach(async (item) => {
 				const hasSent = await db.hget(`${user}:v2ray:${item.server}`, "hasSent")
+				console.log(`user ${user} is hasSent ${hasSent}`)
 				console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
-				if (!hasSent) {
+				if (hasSent) {
 					console.log("in has not sent condition")
 					if (item.expire <= 10) {
 						console.log(item.expire, hasSent)
