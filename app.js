@@ -39,7 +39,7 @@ menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
 db_1.db.flushdb();
-const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+const cj = new cron_1.CronJob("50 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield db_1.db.smembers("users");
         for (let user of users) {
@@ -52,8 +52,8 @@ const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, v
             s.forEach((item) => __awaiter(void 0, void 0, void 0, function* () {
                 const hasSent = yield db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent");
                 if (hasSent) {
-                    if (item.expire <= 12) {
-                        yield bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`);
+                    if (item.expire <= 1800) {
+                        yield bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 30 دقیقه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`);
                         db_1.db.hdel(`${user}:v2ray:${item.server}`, "hasSent");
                         return;
                     }
@@ -63,8 +63,8 @@ const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, v
                 const hasSent = yield db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent");
                 // console.log(hasSent, item.expire)
                 if (hasSent) {
-                    if (item.expire <= 12) {
-                        bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
+                    if (item.expire <= 1800) {
+                        bot.api.sendMessage(user, `کاربر عزیز 30 دقیقه تا منقضی شدن سرور ${item.server} وقت دارید`);
                         db_1.db.hdel(`${user}:openconnect:${item.server}`, "hasSent");
                         return;
                     }

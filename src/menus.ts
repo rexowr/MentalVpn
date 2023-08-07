@@ -5,7 +5,6 @@ import { readFile, writeFile } from "fs/promises"
 import { isEmpty, sample } from "lodash"
 import { db } from "./database/db"
 import getUser from "./getUser"
-import { log } from "./logger"
 import remove from "./remove"
 import { error } from "console"
 
@@ -13,6 +12,7 @@ const BOT_DEVELOPER = 1913245253 // sudo id
 const channelId: number = -1001561327673
 const oneMonth = 30 * 24 * 60 * 60
 const threeMonth = 60 * 24 * 60 * 60
+const twoHours = (60 * 60) * 2
 
 const indexMenu: Menu<Context> = new Menu("index-menu", {
 	onMenuOutdated: "retry!",
@@ -371,7 +371,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				await db.hset(`${id}:openconnect:${server}`, {
 					hasSent: false,
 				})
-				await db.expire(`${id}:openconnect:${server}`, oneMonth)
+				await db.expire(`${id}:openconnect:${server}`, twoHours)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -425,7 +425,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				await db.hset(`${id}:openconnect:${server}`, {
 					hasSent: false,
 				})
-				await db.expire(`${id}:openconnect:${server}`, threeMonth)
+				await db.expire(`${id}:openconnect:${server}`, twoHours)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -484,7 +484,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				await db.hset(`${id}:v2ray:${server}`, {
 					hasSent: false,
 				})
-				await db.expire(`${id}:v2ray:${server}`, oneMonth)
+				await db.expire(`${id}:v2ray:${server}`, twoHours)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,
@@ -537,7 +537,7 @@ const selectVless: Menu<Context> = new Menu("select-vless", {
 				await db.hset(`${id}:v2ray:${server}`, {
 					hasSent: false,
 				})
-				await db.expire(`${id}:v2ray:${server}`, threeMonth)
+				await db.expire(`${id}:v2ray:${server}`, twoHours)
 			} else {
 				await ctx.editMessageText("موجودی شما کافی نیست", {
 					reply_markup: backMenu,

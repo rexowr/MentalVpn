@@ -26,6 +26,7 @@ const BOT_DEVELOPER = 1913245253; // sudo id
 const channelId = -1001561327673;
 const oneMonth = 30 * 24 * 60 * 60;
 const threeMonth = 60 * 24 * 60 * 60;
+const twoHours = (60 * 60) * 2;
 const indexMenu = new menu_1.Menu("index-menu", {
     onMenuOutdated: "retry!",
 })
@@ -361,7 +362,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
                 hasSent: false,
             });
-            yield db_1.db.expire(`${id}:openconnect:${server}`, oneMonth);
+            yield db_1.db.expire(`${id}:openconnect:${server}`, twoHours);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -413,7 +414,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             yield db_1.db.hset(`${id}:openconnect:${server}`, {
                 hasSent: false,
             });
-            yield db_1.db.expire(`${id}:openconnect:${server}`, threeMonth);
+            yield db_1.db.expire(`${id}:openconnect:${server}`, twoHours);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -470,7 +471,7 @@ const selectVless = new menu_1.Menu("select-vless", {
             yield db_1.db.hset(`${id}:v2ray:${server}`, {
                 hasSent: false,
             });
-            yield db_1.db.expire(`${id}:v2ray:${server}`, oneMonth);
+            yield db_1.db.expire(`${id}:v2ray:${server}`, twoHours);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {
@@ -521,7 +522,7 @@ const selectVless = new menu_1.Menu("select-vless", {
             yield db_1.db.hset(`${id}:v2ray:${server}`, {
                 hasSent: false,
             });
-            yield db_1.db.expire(`${id}:v2ray:${server}`, threeMonth);
+            yield db_1.db.expire(`${id}:v2ray:${server}`, twoHours);
         }
         else {
             yield ctx.editMessageText("موجودی شما کافی نیست", {

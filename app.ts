@@ -57,7 +57,7 @@ interface service_data {
 	server: string
 	expire: number
 }
-const cj = new CronJob("*/2 * * * * *", async () => {
+const cj = new CronJob("50 * * * *", async () => {
 	try {
 		const users = await db.smembers("users")
 		for (let user of users) {
@@ -70,10 +70,10 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 			s.forEach(async (item) => {
 				const hasSent = await db.hget(`${user}:v2ray:${item.server}`, "hasSent")
 				if (hasSent) {
-					if (item.expire <= 12) {
+					if (item.expire <= 1800) {
 						await bot.api.sendMessage(
 							user,
-							`سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
+							`سرور ${item.server} در کمتر از 30 دقیقه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
 						)
 						db.hdel(`${user}:v2ray:${item.server}`, "hasSent")
 						return
@@ -87,10 +87,10 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 				)
 				// console.log(hasSent, item.expire)
 				if (hasSent) {
-					if (item.expire <= 12) {
+					if (item.expire <= 1800) {
 						bot.api.sendMessage(
 							user,
-							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
+							`کاربر عزیز 30 دقیقه تا منقضی شدن سرور ${item.server} وقت دارید`
 						)
 						db.hdel(`${user}:openconnect:${item.server}`, "hasSent")
 						return;
