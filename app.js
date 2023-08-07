@@ -24,6 +24,7 @@ const expireServices_1 = require("./src/expireServices");
 const token = "5413815988:AAGY1_vZkLmUlcjaUrKTJfxOvXNkS3OqycI"; // set token
 const BOT_DEVELOPER = 1913245253; // sudo id
 const bot = new grammy_1.Bot(token);
+const expireTime = 24 * 60 * 60;
 // handle menus
 menus_1.indexMenu.register(menus_1.backMenu);
 menus_1.indexMenu.register(menus_1.extentionServices);
@@ -50,31 +51,25 @@ const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, v
             const t = yield (0, expireServices_1.getOpenExpire)(user, openconnect);
             s.forEach((item) => __awaiter(void 0, void 0, void 0, function* () {
                 const hasSent = yield db_1.db.hget(`${user}:v2ray:${item.server}`, "hasSent");
-                console.log(`user ${user} is hasSent ${hasSent}`);
-                console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`);
                 if (hasSent) {
-                    console.log("in has not sent condition");
-                    if (item.expire <= 10) {
-                        console.log(item.expire, hasSent);
-                        console.log("server expire time less than 10");
+                    if (item.expire <= 12) {
                         yield bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`);
                         db_1.db.hdel(`${user}:v2ray:${item.server}`, "hasSent");
                         return;
                     }
                 }
             }));
-            t.forEach((item) => {
-                db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
-                    // console.log(hasSent, item.expire)
-                    if (!hasSent && item.expire <= 10) {
-                        console.log(`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`);
+            t.forEach((item) => __awaiter(void 0, void 0, void 0, function* () {
+                const hasSent = yield db_1.db.hget(`${user}:openconnect:${item.server}`, "hasSent");
+                // console.log(hasSent, item.expire)
+                if (hasSent) {
+                    if (item.expire <= 12) {
                         bot.api.sendMessage(user, `کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`);
-                        db_1.db.hset(`${user}:openconnect:${item.server}`, {
-                            hasSent: true,
-                        });
+                        db_1.db.hdel(`${user}:openconnect:${item.server}`, "hasSent");
+                        return;
                     }
-                });
-            });
+                }
+            }));
         }
     }
     catch (e) {

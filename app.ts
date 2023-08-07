@@ -37,6 +37,7 @@ type config = {
 
 const BOT_DEVELOPER = 1913245253 // sudo id
 const bot: Bot<Context & config, Api<RawApi>> = new Bot(token)
+const expireTime: number = 24 * 60 * 60
 
 // handle menus
 indexMenu.register(backMenu)
@@ -68,39 +69,33 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 			const t = await getOpenExpire(user, openconnect)
 			s.forEach(async (item) => {
 				const hasSent = await db.hget(`${user}:v2ray:${item.server}`, "hasSent")
-				console.log(`user ${user} is hasSent ${hasSent}`)
-				console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
 				if (hasSent) {
-					console.log("in has not sent condition")
-					if (item.expire <= 10) {
-						console.log(item.expire, hasSent)
-						console.log("server expire time less than 10")
+					if (item.expire <= 12) {
 						await bot.api.sendMessage(
 							user,
 							`سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
-							)
-							db.hdel(`${user}:v2ray:${item.server}`,"hasSent")
-							return;
+						)
+						db.hdel(`${user}:v2ray:${item.server}`, "hasSent")
+						return
 					}
 				}
 			})
-			t.forEach((item) => {
-				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
-					// console.log(hasSent, item.expire)
-					if (!hasSent && item.expire <= 10) {
-						console.log(
-							`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`
-						)
-
+			t.forEach(async (item) => {
+				const hasSent = await db.hget(
+					`${user}:openconnect:${item.server}`,
+					"hasSent"
+				)
+				// console.log(hasSent, item.expire)
+				if (hasSent) {
+					if (item.expire <= 12) {
 						bot.api.sendMessage(
 							user,
 							`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
 						)
-						db.hset(`${user}:openconnect:${item.server}`, {
-							hasSent: true,
-						})
+						db.hdel(`${user}:openconnect:${item.server}`, "hasSent")
+						return;
 					}
-				})
+				}
 			})
 		}
 	} catch (e) {
