@@ -79,9 +79,7 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 							user,
 							`سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
 							)
-							db.hset(`${user}:v2ray:${item.server}`, {
-								hasSent: false,
-							})
+							db.hdel(`${user}:v2ray:${item.server}`,"hasSent")
 							return;
 					}
 				}
