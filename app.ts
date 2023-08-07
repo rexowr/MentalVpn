@@ -69,13 +69,19 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 			s.forEach(async (item) => {
 				const hasSent = await db.hget(`${user}:v2ray:${item.server}`, "hasSent")
 				console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
-				if(item.expire <= 10 && !hasSent){
-					console.log("server expire time less than 10")
-						console.log("in hasSent Condition: ", hasSent)
-						await bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`)
-						return db.hset(`${user}:v2ray:${item.server}`, {
-							hasSent: true
-						})
+				if (!hasSent) {
+					console.log("in has not sent condition")
+					if (item.expire <= 10) {
+						console.log(item.expire, hasSent)
+						console.log("server expire time less than 10")
+						await bot.api.sendMessage(
+							user,
+							`سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
+							)
+							return db.hset(`${user}:v2ray:${item.server}`, {
+								hasSent: true,
+							})
+					}
 				}
 				// db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
 				// 	// console.log(hasSent, item.expire)
@@ -96,7 +102,9 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
 					// console.log(hasSent, item.expire)
 					if (!hasSent && item.expire <= 10) {
-						console.log(`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`)
+						console.log(
+							`in open connect => hasSent: ${hasSent}, expire: ${item.expire}`
+						)
 
 						bot.api.sendMessage(
 							user,
