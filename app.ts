@@ -71,12 +71,13 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 				console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
 				if(item.expire <= 10){
 					console.log("server expire time less than 10")
-					if(!hasSent){
+					if(hasSent){
 						console.log("in hasSent Condition: ", hasSent)
 						await bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`)
 						db.hset(`${user}:v2ray:${item.server}`, {
 							hasSent: true
 						})
+						return
 					}
 				}
 				// db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
