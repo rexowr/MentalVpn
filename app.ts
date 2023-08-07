@@ -78,25 +78,12 @@ const cj = new CronJob("*/2 * * * * *", async () => {
 							user,
 							`سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`
 							)
-							return db.hset(`${user}:v2ray:${item.server}`, {
+							db.hset(`${user}:v2ray:${item.server}`, {
 								hasSent: true,
 							})
+							return;
 					}
 				}
-				// db.hget(`${user}:v2ray:${item.server}`, "hasSent").then((hasSent) => {
-				// 	// console.log(hasSent, item.expire)
-				// 	// console.log(`in v2ray => hasSent: ${hasSent}, expire: ${item.expire}`)
-				// 	if (!hasSent && item.expire <= 10) {
-				// 		// console.log(`in v2ray in condition => hasSent: ${hasSent}, expire: ${item.expire}`)
-				// 		bot.api.sendMessage(
-				// 			user,
-				// 			`کاربر عزیز 10 ثانیه تا منقضی شدن سرور ${item.server} وقت دارید`
-				// 		)
-				// 		db.hset(`${user}:v2ray:${item.server}`, {
-				// 			hasSent: true,
-				// 		})
-				// 	}
-				// })
 			})
 			t.forEach((item) => {
 				db.hget(`${user}:openconnect:${item.server}`, "hasSent").then((hasSent) => {
