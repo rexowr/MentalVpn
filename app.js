@@ -59,7 +59,7 @@ const cj = new cron_1.CronJob("*/2 * * * * *", () => __awaiter(void 0, void 0, v
                         yield bot.api.sendMessage(user, `سرور ${item.server} در کمتر از 10 ثانیه منقضی خواهد شد\nدرصورتی که قصد تمدید کردن دارید لطفا در منوی اصلی و در قسمت تمدید اقدام کنید`);
                     }
                     db_1.db.hset(`${user}:v2ray:${item.server}`, {
-                        hasSent: true,
+                        hasSent: false,
                     });
                     console.log("server has sent successfuly!");
                 }
