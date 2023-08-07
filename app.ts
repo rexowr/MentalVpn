@@ -26,7 +26,7 @@ import {
 	getOpenExpire,
 } from "./src/expireServices"
 
-const token: string = "6374881763:AAEAon5Y1Y5datPTlii27obw5JyANNqJtQU" // set token
+const token: string = "5413815988:AAGY1_vZkLmUlcjaUrKTJfxOvXNkS3OqycI" // set token
 type cfg = {
 	botDeveloper: number
 	isDeveloper: boolean
