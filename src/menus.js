@@ -200,22 +200,21 @@ exports.backToLearns = backToLearns;
 const services = new menu_1.Menu("services-menu", {
     onMenuOutdated: "retry!",
 })
-    .text("V2RAY IP SABET", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
-            reply_markup: backMenu
-        });
-        // await ctx.editMessageText("لطفا انتخاب کنید", {
-        // 	reply_markup: selectOperators,
-        // })
-    }
-    catch (e) {
-        console.error(e);
-    }
-}))
+    /*.text("V2RAY IP SABET", async (ctx) => {
+        try {
+            await ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
+                reply_markup: backMenu
+            })
+            // await ctx.editMessageText("لطفا انتخاب کنید", {
+            // 	reply_markup: selectOperators,
+            // })
+        } catch (e) {
+            console.error(e)
+        }
+    })*/
     .text("V2RAY", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
-        reply_markup: backMenu
+    return yield ctx.editMessageText("برای خرید کانفیگ V2ray به @mrezadonjane پیام بدهید", {
+        reply_markup: backMenu,
     });
 })
 // await ctx.editMessageText(
@@ -355,13 +354,17 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             yield ctx.reply("شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
-            const qr = yield qrcode_1.default.toDataURL(server);
-            let base64Image = qr.split(";base64,").pop();
-            yield (0, promises_1.writeFile)("./image.png", base64Image, {
-                encoding: "base64",
-            });
-            yield ctx.replyWithPhoto(new grammy_1.InputFile("./image.png"), {
-                caption: `PASSWORD: ${server}`,
+            // const qr = await qrcode.toDataURL(server)
+            // let base64Image = qr.split(";base64,").pop()
+            // await writeFile("./image.png", base64Image!, {
+            // 	encoding: "base64",
+            // })
+            // await ctx.replyWithPhoto(new InputFile("./image.png"), {
+            // 	caption: `PASSWORD: ${server}`,
+            // })
+            const [user, password] = server.split(":");
+            yield ctx.reply(`**USER:** \`${user}\`\n**PASSWORD:** \`${password}\``, {
+                parse_mode: "Markdown"
             });
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./passwords.txt", s.join("\n"));

@@ -198,7 +198,7 @@ const backToLearns = new Menu("back-to-learn").back("بازگشت", async (ctx) 
 const services: Menu<Context> = new Menu("services-menu", {
 	onMenuOutdated: "retry!",
 })
-	.text("V2RAY IP SABET", async (ctx) => {
+	/*.text("V2RAY IP SABET", async (ctx) => {
 		try {
 			await ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
 				reply_markup: backMenu
@@ -209,19 +209,22 @@ const services: Menu<Context> = new Menu("services-menu", {
 		} catch (e) {
 			console.error(e)
 		}
-	})
+	})*/
 	.text(
 		"V2RAY",
 		async (ctx) =>
-			await ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
-				reply_markup: backMenu
-			})
-			// await ctx.editMessageText(
-			// 	"در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است",
-			// 	{
-			// 		reply_markup: selectVless,
-			// 	}
-			// )
+			await ctx.editMessageText(
+				"برای خرید کانفیگ V2ray به @mrezadonjane پیام بدهید",
+				{
+					reply_markup: backMenu,
+				}
+			)
+		// await ctx.editMessageText(
+		// 	"در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است",
+		// 	{
+		// 		reply_markup: selectVless,
+		// 	}
+		// )
 	)
 	.row()
 	.text(
@@ -360,13 +363,17 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				)
 				const content = file.split("\n").map((item) => item.replace("\r", ""))
 				const server = sample(content)!
-				const qr = await qrcode.toDataURL(server)
-				let base64Image = qr.split(";base64,").pop()
-				await writeFile("./image.png", base64Image!, {
-					encoding: "base64",
-				})
-				await ctx.replyWithPhoto(new InputFile("./image.png"), {
-					caption: `PASSWORD: ${server}`,
+				// const qr = await qrcode.toDataURL(server)
+				// let base64Image = qr.split(";base64,").pop()
+				// await writeFile("./image.png", base64Image!, {
+				// 	encoding: "base64",
+				// })
+				// await ctx.replyWithPhoto(new InputFile("./image.png"), {
+				// 	caption: `PASSWORD: ${server}`,
+				// })
+				const [user, password] = server.split(":")
+				await ctx.reply(`**USER:** \`${user}\`\n**PASSWORD:** \`${password}\``, {
+					parse_mode: "Markdown"
 				})
 				let s = remove(content, server)
 				await writeFile("./passwords.txt", s.join("\n"))

@@ -3,11 +3,7 @@ import { Redis } from "ioredis"
 import { log } from "../logger"
 
 // const db: RedisClientType = createClient()
-export const db = new Redis({
-	password: "8edjEEMd690ARr4lpUBUCku644OJIClu",
-	host: "redis-15051.c11.us-east-1-2.ec2.cloud.redislabs.com",
-  port: 15051
-})
+export const db = new Redis()
 // import { createClient } from "redis"
 
 // const client = createClient({
