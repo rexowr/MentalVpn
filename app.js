@@ -107,10 +107,10 @@ bot.command("start", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
         reply_markup: menus_1.indexMenu,
     });
 }));
-bot.hears(/\/discount \d{7,10} \d+/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+bot.hears(/\/discount \d+ \d{7,10}/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (ctx.config.isDeveloper) {
-            const [_, id, value] = ctx.match[0].split(" ");
+            const [_, value, id] = ctx.match[0].split(" ");
             yield db_1.db.hset(id, {
                 discount: value,
             });
@@ -121,10 +121,6 @@ bot.hears(/\/discount \d{7,10} \d+/, (ctx) => __awaiter(void 0, void 0, void 0, 
     catch (e) {
         console.error(e);
     }
-}));
-bot.hears(/id/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(ctx.chat);
-    // await ctx.reply(ctx.chat)
 }));
 bot.hears(/\/v2ray (.*)/, (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     try {

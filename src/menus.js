@@ -141,7 +141,7 @@ const confirmExtendService = new menu_1.Menu("confirm-extend")
             yield ctx.editMessageText("درخواست تمدید شما با موفقیت برای پشتیبانی ارسال شد\nپس از بررسی های لازم و پرداخت هزینه سرور شما تمدید میشود", {
                 reply_markup: backMenu,
             });
-            console.log(id);
+            // console.log(id)
             yield ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
                 parse_mode: "Markdown",
             });
@@ -202,19 +202,29 @@ const services = new menu_1.Menu("services-menu", {
 })
     .text("V2RAY IP SABET", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield ctx.editMessageText("لطفا انتخاب کنید", {
-            reply_markup: selectOperators,
+        yield ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
+            reply_markup: backMenu
         });
+        // await ctx.editMessageText("لطفا انتخاب کنید", {
+        // 	reply_markup: selectOperators,
+        // })
     }
     catch (e) {
         console.error(e);
     }
 }))
     .text("V2RAY", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield ctx.editMessageText("در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است", {
-        reply_markup: selectVless,
+    return yield ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
+        reply_markup: backMenu
     });
-}))
+})
+// await ctx.editMessageText(
+// 	"در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است",
+// 	{
+// 		reply_markup: selectVless,
+// 	}
+// )
+)
     .row()
     .text("OPEN CONNECT", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
     return yield ctx.editMessageText("به بعضی وایفای ها ممکن است وصل نشود", {
@@ -341,7 +351,7 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
                 reply_markup: backMenu,
             });
         }
-        if (balance >= discount && file) {
+        if (balance >= price && file) {
             yield ctx.reply("شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);

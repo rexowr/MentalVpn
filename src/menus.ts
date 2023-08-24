@@ -135,7 +135,7 @@ const confirmExtendService = new Menu("confirm-extend")
 						reply_markup: backMenu,
 					}
 				)
-				console.log(id)
+				// console.log(id)
 				await ctx.api.sendMessage(
 					BOT_DEVELOPER,
 					`کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`,
@@ -200,9 +200,12 @@ const services: Menu<Context> = new Menu("services-menu", {
 })
 	.text("V2RAY IP SABET", async (ctx) => {
 		try {
-			await ctx.editMessageText("لطفا انتخاب کنید", {
-				reply_markup: selectOperators,
+			await ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
+				reply_markup: backMenu
 			})
+			// await ctx.editMessageText("لطفا انتخاب کنید", {
+			// 	reply_markup: selectOperators,
+			// })
 		} catch (e) {
 			console.error(e)
 		}
@@ -210,12 +213,15 @@ const services: Menu<Context> = new Menu("services-menu", {
 	.text(
 		"V2RAY",
 		async (ctx) =>
-			await ctx.editMessageText(
-				"در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است",
-				{
-					reply_markup: selectVless,
-				}
-			)
+			await ctx.editMessageText("لطفا با ادمین از قسمت پشتیبانی در تماس باشید", {
+				reply_markup: backMenu
+			})
+			// await ctx.editMessageText(
+			// 	"در گیلان و مازندران فقط برای اندروید و ویندوز مناسب است",
+			// 	{
+			// 		reply_markup: selectVless,
+			// 	}
+			// )
 	)
 	.row()
 	.text(
@@ -348,7 +354,7 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 					}
 				)
 			}
-			if (balance >= discount && file) {
+			if (balance >= price && file) {
 				await ctx.reply(
 					"شما سرویس 50 گیگ دوکاربره 1 ماهه 90تومن را انتخاب کرده اید"
 				)

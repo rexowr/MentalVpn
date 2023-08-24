@@ -134,10 +134,10 @@ bot.command("start", async (ctx) => {
 	})
 })
 
-bot.hears(/\/discount \d{7,10} \d+/, async (ctx) => {
+bot.hears(/\/discount \d+ \d{7,10}/, async (ctx) => {
 	try {
 		if (ctx.config.isDeveloper) {
-			const [_, id, value] = ctx.match[0].split(" ")
+			const [_, value, id] = ctx.match[0].split(" ")
 			await db.hset(id, {
 				discount: value,
 			})
@@ -150,11 +150,6 @@ bot.hears(/\/discount \d{7,10} \d+/, async (ctx) => {
 	} catch (e) {
 		console.error(e)
 	}
-})
-
-bot.hears(/id/, async (ctx) => {
-	console.log(ctx.chat)
-	// await ctx.reply(ctx.chat)
 })
 
 bot.hears(/\/v2ray (.*)/, async (ctx) => {
