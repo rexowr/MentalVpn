@@ -29,6 +29,7 @@ const expireTime = 24 * 60 * 60;
 menus_1.indexMenu.register(menus_1.backMenu);
 menus_1.indexMenu.register(menus_1.extentionServices);
 menus_1.indexMenu.register(menus_1.confirmExtendService);
+menus_1.indexMenu.register(menus_1.confirmExtendServer);
 menus_1.indexMenu.register(menus_1.services);
 menus_1.indexMenu.register(menus_1.servicesLearn);
 menus_1.services.register(menus_1.selectOperators);
@@ -38,7 +39,6 @@ menus_1.services.register(menus_1.selectVless);
 menus_1.services.register(menus_1.selectOpenConnect);
 bot.use(menus_1.indexMenu);
 bot.use(menus_1.confirmPurchase);
-db_1.db.flushdb();
 const cj = new cron_1.CronJob("50 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield db_1.db.smembers("users");

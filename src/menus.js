@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.confirmExtendService = exports.extentionServices = exports.wifiBtn = exports.selectOperators = exports.backToLearns = exports.servicesLearn = exports.confirmPurchase = exports.selectOpenConnect = exports.selectVless = exports.services = exports.backMenu = exports.indexMenu = void 0;
+exports.confirmExtendServer = exports.confirmExtendService = exports.extentionServices = exports.wifiBtn = exports.selectOperators = exports.backToLearns = exports.servicesLearn = exports.confirmPurchase = exports.selectOpenConnect = exports.selectVless = exports.services = exports.backMenu = exports.indexMenu = void 0;
 const qrcode_1 = __importDefault(require("qrcode"));
 const menu_1 = require("@grammyjs/menu");
 const grammy_1 = require("grammy");
@@ -143,6 +143,7 @@ const confirmExtendService = new menu_1.Menu("confirm-extend")
             });
             // console.log(id)
             yield ctx.api.sendMessage(BOT_DEVELOPER, `کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`, {
+                reply_markup: confirmExtendServer,
                 parse_mode: "Markdown",
             });
         }
@@ -410,13 +411,17 @@ const selectOpenConnect = new menu_1.Menu("select-openconnect")
             yield ctx.reply("شما سرویس 150 گیگ دوکاربره 3 ماهه 360تومن را انتخاب کرده اید");
             const content = file.split("\n").map((item) => item.replace("\r", ""));
             const server = (0, lodash_1.sample)(content);
-            const qr = yield qrcode_1.default.toDataURL(server);
-            let base64Image = qr.split(";base64,").pop();
-            yield (0, promises_1.writeFile)("./image.png", base64Image, {
-                encoding: "base64",
-            });
-            yield ctx.replyWithPhoto(new grammy_1.InputFile("./image.png"), {
-                caption: `PASSWORD: ${server}`,
+            // const qr = await qrcode.toDataURL(server)
+            // let base64Image = qr.split(";base64,").pop()
+            // await writeFile("./image.png", base64Image!, {
+            // 	encoding: "base64",
+            // })
+            // await ctx.replyWithPhoto(new InputFile("./image.png"), {
+            // 	caption: `PASSWORD: ${server}`,
+            // })
+            const [user, password] = server.split(":");
+            yield ctx.reply(`**USER:** \`${user}\`\n**PASSWORD:** \`${password}\``, {
+                parse_mode: "Markdown",
             });
             let s = (0, remove_1.default)(content, server);
             yield (0, promises_1.writeFile)("./passwords.txt", s.join("\n"));
@@ -591,3 +596,18 @@ const confirmPurchase = new menu_1.Menu("confirm-purchase", {
     }
 }));
 exports.confirmPurchase = confirmPurchase;
+const confirmExtendServer = new menu_1.Menu("confirm-extend-server")
+    .text("تایید", (ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    var _r, _s, _t;
+    if (ctx.from.id === BOT_DEVELOPER) {
+        const text = (_r = ctx.msg) === null || _r === void 0 ? void 0 : _r.text;
+        const pattern = /\d{7,10}/;
+        const id = (_t = (_s = ctx.msg) === null || _s === void 0 ? void 0 : _s.text) === null || _t === void 0 ? void 0 : _t.match(pattern);
+        if (id) {
+            yield ctx.deleteMessage();
+            yield ctx.reply("انجام شد");
+            yield ctx.api.sendMessage(id[0], "سرور شما تایید شد");
+        }
+    }
+}));
+exports.confirmExtendServer = confirmExtendServer;

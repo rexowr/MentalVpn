@@ -14,6 +14,7 @@ import {
 	wifiBtn,
 	extentionServices,
 	confirmExtendService,
+	confirmExtendServer,
 } from "./src/menus"
 import { log } from "./src/logger"
 import { db } from "./src/database/db"
@@ -43,6 +44,7 @@ const expireTime: number = 24 * 60 * 60
 indexMenu.register(backMenu)
 indexMenu.register(extentionServices)
 indexMenu.register(confirmExtendService)
+indexMenu.register(confirmExtendServer)
 indexMenu.register(services)
 indexMenu.register(servicesLearn)
 services.register(selectOperators)
@@ -52,7 +54,7 @@ services.register(selectVless)
 services.register(selectOpenConnect)
 bot.use(indexMenu)
 bot.use(confirmPurchase)
-db.flushdb()
+// db.flushdb()
 interface service_data {
 	server: string
 	expire: number

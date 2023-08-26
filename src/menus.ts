@@ -140,6 +140,7 @@ const confirmExtendService = new Menu("confirm-extend")
 					BOT_DEVELOPER,
 					`کاربر ${id} قصد تمدید کردن سرور زیر را دارد:\n${server}\n[بازکردن صفحه چت کاربر](tg://user?id=${id})`,
 					{
+						reply_markup: confirmExtendServer,
 						parse_mode: "Markdown",
 					}
 				)
@@ -421,13 +422,17 @@ const selectOpenConnect: Menu<Context> = new Menu("select-openconnect")
 				)
 				const content = file.split("\n").map((item) => item.replace("\r", ""))
 				const server = sample(content)!
-				const qr = await qrcode.toDataURL(server)
-				let base64Image = qr.split(";base64,").pop()
-				await writeFile("./image.png", base64Image!, {
-					encoding: "base64",
-				})
-				await ctx.replyWithPhoto(new InputFile("./image.png"), {
-					caption: `PASSWORD: ${server}`,
+				// const qr = await qrcode.toDataURL(server)
+				// let base64Image = qr.split(";base64,").pop()
+				// await writeFile("./image.png", base64Image!, {
+				// 	encoding: "base64",
+				// })
+				// await ctx.replyWithPhoto(new InputFile("./image.png"), {
+				// 	caption: `PASSWORD: ${server}`,
+				// })
+				const [user, password] = server.split(":")
+				await ctx.reply(`**USER:** \`${user}\`\n**PASSWORD:** \`${password}\``, {
+					parse_mode: "Markdown",
 				})
 				let s = remove(content, server)
 				await writeFile("./passwords.txt", s.join("\n"))
@@ -606,6 +611,20 @@ const confirmPurchase = new Menu("confirm-purchase", {
 		}
 	})
 
+const confirmExtendServer = new Menu("confirm-extend-server")
+.text("تایید", async ctx => {
+	if(ctx.from.id === BOT_DEVELOPER){
+		const text = ctx.msg?.text
+		const pattern = /\d{7,10}/
+		const id = ctx.msg?.text?.match(pattern)
+		if(id){
+			await ctx.deleteMessage()
+			await ctx.reply("انجام شد")
+			await ctx.api.sendMessage(id![0], "سرور شما تایید شد")
+		}
+	}
+})
+
 export {
 	indexMenu,
 	backMenu,
@@ -619,4 +638,5 @@ export {
 	wifiBtn,
 	extentionServices,
 	confirmExtendService,
+	confirmExtendServer
 }
